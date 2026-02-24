@@ -6,9 +6,10 @@
 
 const PhotoDB = (() => {
     const DB_NAME = 'PixBoothDB';
-    const DB_VERSION = 1;
+    const DB_VERSION = 2; // Incremented for strips store
     const PHOTO_STORE = 'photos';
     const META_STORE = 'meta';
+    const STRIPS_STORE = 'strips';
 
     function openDB() {
         return new Promise((resolve, reject) => {
@@ -21,6 +22,9 @@ const PhotoDB = (() => {
                 }
                 if (!db.objectStoreNames.contains(META_STORE)) {
                     db.createObjectStore(META_STORE, { keyPath: 'key' });
+                }
+                if (!db.objectStoreNames.contains(STRIPS_STORE)) {
+                    db.createObjectStore(STRIPS_STORE, { keyPath: 'id' });
                 }
             };
 
@@ -112,6 +116,31 @@ const PhotoDB = (() => {
         });
     }
 
+    // --- Strips methods ---
+    async function saveStrip(strip) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STRIPS_STORE, 'readwrite');
+            tx.objectStore(STRIPS_STORE).put(strip);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+        });
+    }
+
+    async function getAllStrips() {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STRIPS_STORE, 'readonly');
+            const request = tx.objectStore(STRIPS_STORE).getAll();
+            request.onsuccess = () => {
+                // Return newest first
+                const strips = request.result.sort((a, b) => b.timestamp - a.timestamp);
+                resolve(strips);
+            };
+            request.onerror = () => reject(request.error);
+        });
+    }
+
     return {
         savePhoto,
         saveAllPhotos,
@@ -119,6 +148,8 @@ const PhotoDB = (() => {
         getPhoto,
         deletePhoto,
         clearPhotos,
-        getPhotoCount
+        getPhotoCount,
+        saveStrip,
+        getAllStrips
     };
 })();
