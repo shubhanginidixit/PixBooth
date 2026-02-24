@@ -10,57 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <script src="js/tailwind-config.js"></script>
     <link href="css/shared.css" rel="stylesheet" />
-    <style>
-        /* Button glow */
-        @keyframes glowPulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 20px rgba(231, 185, 35, 0.3), 0 8px 30px rgba(231, 185, 35, 0.2);
-            }
-
-            50% {
-                box-shadow: 0 0 35px rgba(231, 185, 35, 0.5), 0 8px 40px rgba(231, 185, 35, 0.3);
-            }
-        }
-
-        .btn-glow {
-            animation: glowPulse 2.5s ease-in-out infinite;
-        }
-
-        .btn-glow:disabled {
-            animation: none;
-            box-shadow: none;
-        }
-
-        /* Selected card pulse — uses box-shadow only, won't conflict with opacity */
-        .card-selected {
-            box-shadow: 0 0 0 0 rgba(231, 185, 35, 0.4);
-            animation: selectedPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes selectedPulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(231, 185, 35, 0.4);
-            }
-
-            50% {
-                box-shadow: 0 0 0 8px rgba(231, 185, 35, 0);
-            }
-        }
-
-        /* Layout preview gradients */
-        .preview-slot {
-            background: linear-gradient(135deg, #d1d5db 0%, #e5e7eb 50%, #d1d5db 100%);
-            transition: all 0.3s ease;
-        }
-
-        .layout-card:hover .preview-slot {
-            background: linear-gradient(135deg, #c5cdd6 0%, #dde1e6 50%, #c5cdd6 100%);
-        }
-    </style>
+    <link href="css/index.css" rel="stylesheet" />
 </head>
 
 <body class="animated-bg text-gray-800 font-display">
@@ -70,7 +20,7 @@
                 <div class="flex flex-col w-full max-w-[960px] flex-1">
 
                     <!-- Header -->
-                    <header class="flex items-center justify-center py-6 animate-fade-in-up">
+                    <header class="flex items-center justify-between py-6 animate-fade-in-up">
                         <div class="flex items-center gap-3 glass rounded-2xl px-6 py-3 shadow-lg">
                             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-md">
                                 <span class="material-symbols-outlined text-white"
@@ -78,6 +28,11 @@
                             </div>
                             <h2 class="text-2xl font-black tracking-tight text-gray-800">PixBooth</h2>
                         </div>
+                        <a href="gallery.html"
+                            class="glass text-gray-800 hover:bg-white/60 transition-all rounded-xl px-4 py-3 flex items-center gap-2 font-bold text-sm">
+                            <span class="material-symbols-outlined text-lg">photo_library</span>
+                            <span class="hidden sm:inline">Gallery</span>
+                        </a>
                     </header>
 
                     <main class="flex-grow">
@@ -98,8 +53,8 @@
 
                             <!-- Strip 3 -->
                             <div class="layout-card animate-fade-in-up stagger-1 flex flex-col group gap-3 pb-3 glass-strong p-4 sm:p-5 rounded-2xl border-2 border-transparent hover:border-primary/60 transition-all duration-300 cursor-pointer shadow-xl hover:shadow-2xl"
-                                data-layout="strip3" data-rows="3" data-cols="1" data-name="Strip 3"
-                                role="button" tabindex="0" aria-label="Strip 3 layout — 3 photos, vertical">
+                                data-layout="strip3" data-rows="3" data-cols="1" data-name="Strip 3" role="button"
+                                tabindex="0" aria-label="Strip 3 layout — 3 photos, vertical">
                                 <div
                                     class="w-full h-48 rounded-xl bg-white/40 flex flex-col p-2.5 gap-2 justify-center items-center">
                                     <div class="preview-slot w-full flex-1 rounded-lg"></div>
@@ -114,8 +69,8 @@
 
                             <!-- Strip 4 -->
                             <div class="layout-card animate-fade-in-up stagger-2 flex flex-col group gap-3 pb-3 glass-strong p-4 sm:p-5 rounded-2xl border-2 border-transparent hover:border-primary/60 transition-all duration-300 cursor-pointer shadow-xl hover:shadow-2xl"
-                                data-layout="strip4" data-rows="4" data-cols="1" data-name="Strip 4"
-                                role="button" tabindex="0" aria-label="Strip 4 layout — 4 photos, vertical">
+                                data-layout="strip4" data-rows="4" data-cols="1" data-name="Strip 4" role="button"
+                                tabindex="0" aria-label="Strip 4 layout — 4 photos, vertical">
                                 <div
                                     class="w-full h-48 rounded-xl bg-white/40 flex flex-col p-2.5 gap-1.5 justify-center items-center">
                                     <div class="preview-slot w-full flex-1 rounded-lg"></div>
@@ -131,8 +86,8 @@
 
                             <!-- 2x2 Grid -->
                             <div class="layout-card animate-fade-in-up stagger-3 flex flex-col group gap-3 pb-3 glass-strong p-4 sm:p-5 rounded-2xl border-2 border-transparent hover:border-primary/60 transition-all duration-300 cursor-pointer shadow-xl hover:shadow-2xl"
-                                data-layout="grid2x2" data-rows="2" data-cols="2" data-name="2x2 Grid"
-                                role="button" tabindex="0" aria-label="2 by 2 grid layout — 4 photos, square">
+                                data-layout="grid2x2" data-rows="2" data-cols="2" data-name="2x2 Grid" role="button"
+                                tabindex="0" aria-label="2 by 2 grid layout — 4 photos, square">
                                 <div
                                     class="w-full h-48 rounded-xl bg-white/40 grid grid-cols-2 grid-rows-2 p-2.5 gap-2">
                                     <div class="preview-slot rounded-lg"></div>
@@ -148,8 +103,8 @@
 
                             <!-- Row 3 -->
                             <div class="layout-card animate-fade-in-up stagger-4 flex flex-col group gap-3 pb-3 glass-strong p-4 sm:p-5 rounded-2xl border-2 border-transparent hover:border-primary/60 transition-all duration-300 cursor-pointer shadow-xl hover:shadow-2xl"
-                                data-layout="row3" data-rows="1" data-cols="3" data-name="Row 3"
-                                role="button" tabindex="0" aria-label="Row 3 layout — 3 photos, horizontal">
+                                data-layout="row3" data-rows="1" data-cols="3" data-name="Row 3" role="button"
+                                tabindex="0" aria-label="Row 3 layout — 3 photos, horizontal">
                                 <div class="w-full h-48 rounded-xl bg-white/40 flex p-2.5 gap-2 items-center">
                                     <div class="preview-slot flex-1 h-full rounded-lg"></div>
                                     <div class="preview-slot flex-1 h-full rounded-lg"></div>
@@ -175,74 +130,7 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <script>
-        const layoutCards = document.querySelectorAll('.layout-card');
-        const beginBtn = document.getElementById('beginSessionBtn');
-        let selectedLayout = null;
-
-        // Remove entrance animation classes after they've played,
-        // so they won't replay when card-selected is toggled
-        setTimeout(() => {
-            document.querySelectorAll('.animate-fade-in-up').forEach(el => {
-                el.classList.remove('animate-fade-in-up', 'stagger-1', 'stagger-2', 'stagger-3', 'stagger-4', 'stagger-5');
-            });
-        }, 1200);
-
-        // Load previously selected layout if exists
-        const savedLayout = localStorage.getItem('selectedLayout');
-        if (savedLayout) {
-            const savedData = JSON.parse(savedLayout);
-            const savedCard = document.querySelector(`[data-layout="${savedData.layout}"]`);
-            if (savedCard) {
-                selectLayout(savedCard);
-            }
-        }
-
-        layoutCards.forEach(card => {
-            card.addEventListener('click', () => {
-                selectLayout(card);
-            });
-            card.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    selectLayout(card);
-                }
-            });
-        });
-
-        function selectLayout(card) {
-            // Remove selected state from all cards
-            layoutCards.forEach(c => {
-                c.classList.remove('border-primary', 'shadow-primary/30', 'card-selected');
-                c.classList.add('border-transparent');
-            });
-
-            // Add selected state to clicked card
-            card.classList.remove('border-transparent');
-            card.classList.add('border-primary', 'shadow-primary/30', 'card-selected');
-
-            // Store layout data
-            selectedLayout = {
-                layout: card.dataset.layout,
-                rows: parseInt(card.dataset.rows),
-                cols: parseInt(card.dataset.cols),
-                name: card.dataset.name
-            };
-
-            // Enable begin button
-            beginBtn.disabled = false;
-        }
-
-        beginBtn.addEventListener('click', () => {
-            if (selectedLayout) {
-                localStorage.setItem('selectedLayout', JSON.stringify(selectedLayout));
-                window.location.href = 'camera.html';
-            }
-        });
-    </script>
-
+        <script src="js/index.js"></script>
 </body>
 
 </html>
