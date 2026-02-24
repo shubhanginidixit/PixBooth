@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>PixBooth - Live Gallery</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script src="js/tailwind-config.js"></script>
+    <link href="css/shared.css" rel="stylesheet" />
+    <link href="css/gallery.css" rel="stylesheet" />
+    <script src="js/db.js"></script>
+</head>
+
+<body class="animated-bg text-gray-800 font-display min-h-screen">
+    <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden p-4 sm:p-8">
+        <!-- Header -->
+        <header class="flex items-center justify-between py-4 sm:py-6 animate-fade-in-up">
+            <div class="flex items-center gap-3 glass rounded-2xl px-5 py-3 shadow-lg">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-md">
+                    <span class="material-symbols-outlined text-text-light text-xl">photo_library</span>
+                </div>
+                <h1 class="gradient-text text-xl sm:text-2xl font-black tracking-tight">Live Gallery</h1>
+            </div>
+            <a href="index.html"
+                class="glass-strong text-text-light hover:bg-white/60 transition-all rounded-xl px-4 py-3 flex items-center gap-2 font-bold text-sm">
+                <span class="material-symbols-outlined text-lg">add_a_photo</span>
+                <span class="hidden sm:inline">New Photo</span>
+            </a>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 w-full max-w-7xl mx-auto py-8 z-10 animate-fade-in-up delay-1">
+            <div id="emptyState"
+                class="hidden flex-col items-center justify-center p-12 glass rounded-3xl mt-12 text-center text-text-light">
+                <span class="material-symbols-outlined text-6xl opacity-50 mb-4">no_photography</span>
+                <h2 class="text-2xl font-bold mb-2">No photos yet!</h2>
+                <p class="opacity-80 max-w-md mx-auto mb-6">Hit the booth and take some awesome photos to populate your
+                    live gallery.</p>
+                <a href="index.html"
+                    class="bg-primary px-8 py-3 rounded-xl font-bold text-gray-900 hover:scale-105 transition-transform flex items-center gap-2">
+                    <span class="material-symbols-outlined">camera</span> Start Session
+                </a>
+            </div>
+
+            <!-- Masonry Grid -->
+            <div id="galleryGrid" class="gallery-grid columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 w-full">
+                <!-- Gallery items will be injected here via javascript -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal"
+        class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <button id="closeModalBtn" class="absolute top-6 right-6 text-white hover:text-primary transition-colors">
+            <span class="material-symbols-outlined text-4xl">close</span>
+        </button>
+        <img id="modalImg" src=""
+            class="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl scale-95 transition-transform duration-300" />
+    </div>
+
+    <script src="js/gallery.js"></script>
+</body>
+
+</html>
