@@ -1,0 +1,1 @@
+// Logic for emoji editor is integrated in download.js due to tightly coupled closure state.
