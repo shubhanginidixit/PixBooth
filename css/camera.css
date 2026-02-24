@@ -1,0 +1,115 @@
+        .material-symbols-outlined {
+            font-size: 24px;
+        }
+
+        /* Pulsing capture button */
+        @keyframes capturePulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(231, 185, 35, 0.6);
+            }
+
+            50% {
+                box-shadow: 0 0 0 12px rgba(231, 185, 35, 0);
+            }
+        }
+
+        .capture-pulse {
+            animation: capturePulse 2s ease-in-out infinite;
+        }
+
+        /* Flash effect overlay */
+        @keyframes flashEffect {
+            0% {
+                opacity: 0;
+            }
+
+            15% {
+                opacity: 0.9;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .flash-overlay {
+            animation: flashEffect 0.4s ease-out forwards;
+        }
+
+        /* Countdown scale animation */
+        @keyframes countdownPop {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .countdown-animate {
+            animation: countdownPop 0.5s ease-out;
+        }
+
+        /* Ghost thumbnail placeholder */
+        @keyframes ghostPulse {
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .ghost-slot {
+            animation: ghostPulse 2s ease-in-out infinite;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #e7b923;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d4a71b;
+        }
+
+        /* Filter preset hover */
+        .filter-preset:hover .preset-box {
+            transform: scale(1.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .preset-box {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Mobile filter panel slide-up */
+        @media (max-width: 1023px) {
+            #filterPanel {
+                transition: transform 0.3s ease;
+            }
+        }
