@@ -103,240 +103,425 @@ function initPage() {
 
         // Inner colored background
         const innerContainer = document.createElement('div');
-        innerContainer.className = 'p-6 rounded-xl';
+        innerContainer.className = 'p-6 rounded-xl relative';
         innerContainer.style.backgroundColor = stripColor;
 
-        // Create wrapper for positioning emojis
-        const stripWrapper = document.createElement('div');
-        stripWrapper.className = 'relative';
-        stripWrapper.id = 'stripWrapper';
+        // Container for fabric canvas
+        const canvasContainer = document.createElement('div');
+        canvasContainer.id = 'canvasContainer';
+        canvasContainer.style.position = 'relative';
 
-        if (layoutData.layout === 'strip3' || layoutData.layout === 'strip4') {
-            // Vertical strip layout
-            stripWrapper.className = 'relative flex flex-col gap-3';
-            capturedPhotos.forEach((photo, index) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'relative group ' + getFrameClass();
+        // We will create a visible canvas for Fabric to attach to
+        const fabricCanvasEl = document.createElement('canvas');
+        fabricCanvasEl.id = 'fabricCanvas';
+        canvasContainer.appendChild(fabricCanvasEl);
 
-                const img = document.createElement('img');
-                img.src = photo.placeholder;
-                img.className = 'w-full aspect-square object-cover rounded-xl object-top';
-                img.style.filter = getFilterString();
-                img.style.objectPosition = 'center 20%';
+        let canvasWidth = 380;
+        let canvasHeight = 0;
+        let photoAreaWidth = 350;
 
-                wrapper.appendChild(img);
-                wrapper.appendChild(createReorderOverlay(index, capturedPhotos.length, 'vertical'));
-                stripWrapper.appendChild(wrapper);
-            });
-
-            // Add footer with date and branding
-            const footer = document.createElement('div');
-            footer.className = 'mt-4 pt-4 border-t-2 border-white/30 flex justify-between items-center text-sm';
-            footer.style.color = 'rgba(0,0,0,0.6)';
-
-            const date = new Date();
-            const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
-            footer.innerHTML = `
-                <span class="font-medium">${dateStr}</span>
-                <span class="font-bold">PixBooth</span>
-            `;
-            stripWrapper.appendChild(footer);
+        // Calculate dimensions based on layout
+        if (layoutData.layout === 'strip3') {
+            canvasWidth = 350;
+            canvasHeight = (350 * 3) + 16 + 60; // 3 photos + gaps + footer
+        } else if (layoutData.layout === 'strip4') {
+            canvasWidth = 350;
+            canvasHeight = (350 * 4) + 24 + 60;
         } else if (layoutData.layout === 'grid2x2') {
-            // 2x2 Grid layout
-            const gridDiv = document.createElement('div');
-            gridDiv.className = 'grid grid-cols-2 gap-3 ' + getFrameClass();
-
-            capturedPhotos.forEach((photo, index) => {
-                const cell = document.createElement('div');
-                cell.className = 'relative group';
-                const img = document.createElement('img');
-                img.src = photo.placeholder;
-                img.className = 'w-full aspect-square object-cover rounded-xl';
-                img.style.filter = getFilterString();
-                cell.appendChild(img);
-                cell.appendChild(createReorderOverlay(index, capturedPhotos.length, 'vertical'));
-                gridDiv.appendChild(cell);
-            });
-
-            stripWrapper.appendChild(gridDiv);
-
-            // Add footer
-            const gridFooter = document.createElement('div');
-            gridFooter.className = 'mt-4 pt-4 border-t-2 border-white/30 flex justify-between items-center text-sm';
-            gridFooter.style.color = 'rgba(0,0,0,0.6)';
-            const gridDate = new Date();
-            const gridDateStr = gridDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            gridFooter.innerHTML = `
-                <span class="font-medium">${gridDateStr}</span>
-                <span class="font-bold">PixBooth</span>
-            `;
-            stripWrapper.appendChild(gridFooter);
+            canvasWidth = 700 + 8;
+            canvasHeight = 700 + 8 + 60;
         } else if (layoutData.layout === 'row3') {
-            // Horizontal row layout - adjust for horizontal display
+            canvasWidth = (350 * 3) + 16;
+            canvasHeight = 350 + 60;
             stripContainer.style.maxWidth = '650px';
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'flex gap-2 ' + getFrameClass();
-
-            capturedPhotos.forEach((photo, index) => {
-                const cell = document.createElement('div');
-                cell.className = 'relative group flex-1';
-                const img = document.createElement('img');
-                img.src = photo.placeholder;
-                img.className = 'w-full aspect-square object-cover rounded-xl';
-                img.style.filter = getFilterString();
-                cell.appendChild(img);
-                cell.appendChild(createReorderOverlay(index, capturedPhotos.length, 'horizontal'));
-                rowDiv.appendChild(cell);
-            });
-
-            stripWrapper.appendChild(rowDiv);
-
-            // Add footer
-            const rowFooter = document.createElement('div');
-            rowFooter.className = 'mt-4 pt-4 border-t-2 border-white/30 flex justify-between items-center text-sm';
-            rowFooter.style.color = 'rgba(0,0,0,0.6)';
-            const rowDate = new Date();
-            const rowDateStr = rowDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            rowFooter.innerHTML = `
-                <span class="font-medium">${rowDateStr}</span>
-                <span class="font-bold">PixBooth</span>
-            `;
-            stripWrapper.appendChild(rowFooter);
         }
 
-        // Attach reorder button handlers
-        stripWrapper.querySelectorAll('.reorder-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                swapPhotos(parseInt(btn.dataset.from), parseInt(btn.dataset.to));
-            });
-        });
+        // Apply scale factor for UI display (so it fits on screen)
+        const scaleFactor = Math.min(1, (window.innerWidth - 80) / canvasWidth);
+        const displayWidth = canvasWidth * scaleFactor;
+        const displayHeight = canvasHeight * scaleFactor;
 
-        // Add emojis
-        emojis.forEach(emoji => {
-            const emojiEl = document.createElement('div');
-            const size = emoji.size || 48;
-            emojiEl.className = 'absolute cursor-move select-none hover:ring-2 hover:ring-primary rounded';
-            emojiEl.style.left = emoji.x + 'px';
-            emojiEl.style.top = emoji.y + 'px';
-            emojiEl.style.fontSize = size + 'px';
-            emojiEl.style.transition = 'none';
-            emojiEl.style.willChange = 'left, top';
-            emojiEl.textContent = emoji.emoji;
-            emojiEl.draggable = false;
-            emojiEl.dataset.emojiId = emoji.id;
+        fabricCanvasEl.width = canvasWidth;
+        fabricCanvasEl.height = canvasHeight;
+        fabricCanvasEl.style.width = displayWidth + 'px';
+        fabricCanvasEl.style.height = displayHeight + 'px';
 
-            // Highlight if selected
-            if (selectedEmojiForEdit && selectedEmojiForEdit.id === emoji.id) {
-                emojiEl.classList.add('ring-2', 'ring-primary');
-            }
+        innerContainer.appendChild(canvasContainer);
 
-            // Make emoji draggable with smooth drag events
-            let currentDrag = null;
-
-            emojiEl.addEventListener('pointerdown', (e) => {
-                const rect = stripWrapper.getBoundingClientRect();
-                currentDrag = {
-                    emoji: emoji,
-                    element: emojiEl,
-                    startX: e.clientX,
-                    startY: e.clientY,
-                    offsetX: e.clientX - rect.left - emoji.x,
-                    offsetY: e.clientY - rect.top - emoji.y,
-                    moved: false
-                };
-                emojiEl.style.zIndex = '1000';
-                emojiEl.style.cursor = 'grabbing';
-                emojiEl.style.touchAction = 'none';
-                emojiEl.setPointerCapture(e.pointerId);
-                document.body.style.userSelect = 'none';
-                e.preventDefault();
-                e.stopPropagation();
-            });
-
-            const handlePointerMove = (e) => {
-                if (currentDrag && currentDrag.emoji.id === emoji.id) {
-                    const rect = stripWrapper.getBoundingClientRect();
-                    const newX = e.clientX - rect.left - currentDrag.offsetX;
-                    const newY = e.clientY - rect.top - currentDrag.offsetY;
-
-                    currentDrag.emoji.x = newX;
-                    currentDrag.emoji.y = newY;
-                    currentDrag.element.style.left = newX + 'px';
-                    currentDrag.element.style.top = newY + 'px';
-
-                    const movedDistance = Math.sqrt(
-                        Math.pow(e.clientX - currentDrag.startX, 2) +
-                        Math.pow(e.clientY - currentDrag.startY, 2)
-                    );
-                    if (movedDistance > 5) {
-                        currentDrag.moved = true;
-                    }
-                }
-            };
-
-            const handlePointerUp = (e) => {
-                if (currentDrag && currentDrag.emoji.id === emoji.id) {
-                    currentDrag.element.style.zIndex = 'auto';
-                    currentDrag.element.style.cursor = 'move';
-                    document.body.style.userSelect = '';
-
-                    // If moved less than 5 pixels, treat as click
-                    if (!currentDrag.moved) {
-                        selectedEmojiForEdit = emoji;
-                        showEmojiEditControls();
-                        renderPhotoStrip();
-                    }
-
-                    currentDrag = null;
-                }
-            };
-
-            document.addEventListener('pointermove', handlePointerMove, { passive: true });
-            document.addEventListener('pointerup', handlePointerUp);
-
-            // Double click to remove emoji
-            emojiEl.addEventListener('dblclick', (e) => {
-                e.stopPropagation();
-                emojis = emojis.filter(e => e.id !== emoji.id);
-                selectedEmojiForEdit = null;
-                hideEmojiEditControls();
-                renderPhotoStrip();
-            });
-
-            stripWrapper.appendChild(emojiEl);
-        });
-
-        innerContainer.appendChild(stripWrapper);
+        // Add to DOM temporarily to init Fabric
         stripContainer.appendChild(innerContainer);
         container.appendChild(stripContainer);
 
-        // Add click handler for emoji placement
-        if (emojiPlacementMode && selectedEmoji) {
-            stripWrapper.style.cursor = 'crosshair';
-            stripWrapper.addEventListener('click', handleEmojiPlacement);
-        }
-
-    }
-
-    // Handle emoji placement
-    function handleEmojiPlacement(e) {
-        if (!selectedEmoji) return;
-
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left - 20; // Center emoji on click
-        const y = e.clientY - rect.top - 20;
-
-        emojis.push({
-            id: Date.now() + Math.random(),
-            emoji: selectedEmoji,
-            x: x,
-            y: y,
-            size: 48
+        // Initialize Fabric Canvas
+        const fCanvas = new fabric.Canvas('fabricCanvas', {
+            width: canvasWidth,
+            height: canvasHeight,
+            selection: false, // Disable group selection
+            preserveObjectStacking: true
         });
 
-        renderPhotoStrip();
+        // Store canvas reference globally for easy access
+        window.fabricCanvas = fCanvas;
+
+        // Add photos to fabric canvas
+        let loadedCount = 0;
+        const totalPhotos = capturedPhotos.length;
+
+        // Footer elements
+        const drawFooter = () => {
+            const footerY = canvasHeight - 40;
+
+            // Separator Line
+            const line = new fabric.Line([0, footerY - 10, canvasWidth, footerY - 10], {
+                stroke: 'rgba(0,0,0,0.2)',
+                strokeWidth: 2,
+                selectable: false,
+                evented: false
+            });
+            fCanvas.add(line);
+
+            // Date
+            const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const dateText = new fabric.Text(dateStr, {
+                left: 0,
+                top: footerY,
+                fontSize: 18,
+                fontFamily: 'Inter, sans-serif',
+                fill: 'rgba(0, 0, 0, 0.6)',
+                selectable: false,
+                evented: false
+            });
+            fCanvas.add(dateText);
+
+            // Branding
+            const brandText = new fabric.Text('PixBooth', {
+                left: canvasWidth,
+                top: footerY,
+                fontSize: 18,
+                fontWeight: 'bold',
+                fontFamily: 'Inter, sans-serif',
+                fill: 'rgba(0, 0, 0, 0.6)',
+                originX: 'right',
+                selectable: false,
+                evented: false
+            });
+            fCanvas.add(brandText);
+        };
+
+        const addImagesToCanvas = () => {
+            capturedPhotos.forEach((photo, index) => {
+                fabric.Image.fromURL(photo.placeholder, (img) => {
+                    // Calculate positions based on layout
+                    const photoAreaHeight = canvasHeight - 60;
+                    let x = 0, y = 0, w = 0, h = 0;
+
+                    if (layoutData.layout === 'strip3' || layoutData.layout === 'strip4') {
+                        const gap = 12;
+                        const photoSize = (photoAreaHeight - (gap * (totalPhotos - 1))) / totalPhotos;
+                        x = 0;
+                        y = (photoSize + gap) * index;
+                        w = canvasWidth;
+                        h = photoSize;
+                    } else if (layoutData.layout === 'grid2x2') {
+                        const col = index % 2;
+                        const row = Math.floor(index / 2);
+                        const gap = 12;
+                        w = (canvasWidth / 2) - gap;
+                        h = (photoAreaHeight / 2) - gap;
+                        x = col * (w + gap);
+                        y = row * (h + gap);
+                    } else if (layoutData.layout === 'row3') {
+                        const gap = 12;
+                        w = (canvasWidth / totalPhotos) - gap;
+                        h = photoAreaHeight;
+                        x = index * (w + gap);
+                        y = 0;
+                    }
+
+                    // Setup Image properties
+                    img.set({
+                        left: x,
+                        top: y,
+                        strokeWidth: 0,
+                        selectable: false,
+                        evented: false,
+                        crossOrigin: 'anonymous'
+                    });
+
+                    // Scale image to cover area (object-fit: cover equivalent in fabric)
+                    const scaleX = w / img.width;
+                    const scaleY = h / img.height;
+                    const scale = Math.max(scaleX, scaleY);
+                    img.scale(scale);
+
+                    // Center crop
+                    img.set({
+                        left: x + (w - img.getScaledWidth()) / 2,
+                        top: y + (h - img.getScaledHeight()) / 2
+                    });
+
+                    // Clip path for rounded corners
+                    const clipPath = new fabric.Rect({
+                        left: x,
+                        top: y,
+                        width: w,
+                        height: h,
+                        rx: 16,
+                        ry: 16,
+                        absolutePositioned: true
+                    });
+
+                    img.clipPath = clipPath;
+
+                    // Apply filters (basic CSS equivalent via fabric filters)
+                    if (currentFilters.brightness !== 0) {
+                        img.filters.push(new fabric.Image.filters.Brightness({
+                            brightness: currentFilters.brightness / 100
+                        }));
+                    }
+                    if (currentFilters.contrast !== 0) {
+                        img.filters.push(new fabric.Image.filters.Contrast({
+                            contrast: currentFilters.contrast / 100
+                        }));
+                    }
+                    if (currentFilters.saturation !== 0) {
+                        img.filters.push(new fabric.Image.filters.Saturation({
+                            saturation: currentFilters.saturation / 100
+                        }));
+                    }
+
+                    img.applyFilters();
+                    fCanvas.add(img);
+
+                    // Send to back to ensure emojis are on top
+                    img.sendToBack();
+
+                    loadedCount++;
+                    if (loadedCount === totalPhotos) {
+                        drawFooter();
+                        fCanvas.renderAll();
+                    }
+                }, { crossOrigin: 'anonymous' });
+            });
+        };
+
+        addImagesToCanvas();
+
+        // Setup fabric canvas events (for deleting, modifying objects)
+        fCanvas.on('selection:created', (e) => {
+            selectedEmojiForEdit = e.selected[0];
+            showEmojiEditControls();
+        });
+
+        fCanvas.on('selection:cleared', () => {
+            selectedEmojiForEdit = null;
+            hideEmojiEditControls();
+        });
+
+        fCanvas.on('selection:updated', (e) => {
+            selectedEmojiForEdit = e.selected[0];
+            showEmojiEditControls();
+        });
+
+        // Emojis array handling
+        emojis.forEach(emojiParams => {
+            addFabricEmoji(emojiParams);
+        });
+
+        // Handle canvas clicks for emoji placement mode and deselection
+        fCanvas.on('mouse:down', function (options) {
+            // First, if clicking empty canvas, clear selection
+            if (!options.target) {
+                fCanvas.discardActiveObject();
+                fCanvas.renderAll();
+            }
+
+            // Then handle emoji placement if mode is active
+            if (emojiPlacementMode && selectedEmoji && (!options.target || !options.target.selectable)) {
+                const pointer = fCanvas.getPointer(options.e);
+
+                const newEmojiParams = {
+                    id: Date.now(),
+                    emoji: selectedEmoji,
+                    x: pointer.x,
+                    y: pointer.y,
+                    size: 48,
+                    scaleX: 1,
+                    scaleY: 1,
+                    angle: 0
+                };
+
+                emojis.push(newEmojiParams);
+                const fabricObj = addFabricEmoji(newEmojiParams);
+
+                if (fabricObj) {
+                    selectedEmojiForEdit = fabricObj;
+                    fCanvas.setActiveObject(fabricObj);
+                }
+
+                emojiPlacementMode = false;
+                emojiModal.classList.add('hidden');
+                document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('bg-primary/20'));
+            }
+        });
+
+        // Add to DOM
+        innerContainer.appendChild(canvasContainer);
+        stripContainer.appendChild(innerContainer);
+        container.appendChild(stripContainer);
+    }
+
+    // Custom delete control icon
+    const deleteIcon = "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
+    const deleteImg = document.createElement('img');
+    deleteImg.src = deleteIcon;
+
+    function renderIcon(ctx, left, top, styleOverride, fabricObject) {
+        const size = this.cornerSize;
+        ctx.save();
+        ctx.translate(left, top);
+        ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
+        ctx.drawImage(deleteImg, -size / 2, -size / 2, size, size);
+        ctx.restore();
+    }
+
+    function deleteObject(eventData, transform) {
+        const target = transform.target;
+        const canvas = target.canvas;
+        canvas.remove(target);
+        canvas.requestRenderAll();
+        return true;
+    }
+
+    fabric.Object.prototype.controls.deleteControl = new fabric.Control({
+        x: 0.5,
+        y: -0.5,
+        offsetY: -5,
+        offsetX: 5,
+        cursorStyle: 'pointer',
+        mouseUpHandler: deleteObject,
+        render: renderIcon,
+        cornerSize: 24
+    });
+
+    // Add a new emoji to the fabric canvas
+    function addFabricEmoji(params) {
+        if (!window.fabricCanvas) return null;
+
+        const text = new fabric.Text(params.emoji, {
+            left: params.x,
+            top: params.y,
+            fontSize: params.size || 48,
+            scaleX: params.scaleX || 1,
+            scaleY: params.scaleY || 1,
+            angle: params.angle || 0,
+            originX: 'center',
+            originY: 'center',
+            transparentCorners: false,
+            cornerColor: '#7C3AED',
+            cornerStrokeColor: '#FFFFFF',
+            borderColor: '#7C3AED',
+            cornerSize: 12,
+            padding: 10,
+            cornerStyle: 'circle',
+            id: params.id || Date.now()
+        });
+
+        text.setControlsVisibility({
+            mb: false, mt: false, ml: false, mr: false, bl: false, br: false
+        });
+
+        // Add custom rotate control to visually override standard corner
+        const rotateIcon = "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 512 512' style='enable-background:new 0 0 512 512;' xml:space='preserve'%3E%3Ccircle style='fill:%234CAF50;' cx='256' cy='256' r='256'/%3E%3Cpath style='fill:%23FFFFFF;' d='M374.2,256c0,65.2-52.9,118.2-118.2,118.2c-29.6,0-56.7-10.9-77.4-28.9l20.4-20.4 c15.2,12.2,34.8,19.4,56.9,19.4c48.8,0,88.4-39.6,88.4-88.4c0-48.8-39.6-88.4-88.4-88.4c-20.9,0-39.9,7.2-55.1,19.2l20.6,20.6H137.9 v-83.6l23.5,23.5C186.2,160.3,219.1,146,256,146C321.3,146,374.2,199,374.2,256z'/%3E%3C/svg%3E";
+        const rotateImg = document.createElement('img');
+        rotateImg.src = rotateIcon;
+
+        function renderRotateIcon(ctx, left, top, styleOverride, fabricObject) {
+            const size = this.cornerSize;
+            ctx.save();
+            ctx.translate(left, top);
+            ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
+            ctx.drawImage(rotateImg, -size / 2, -size / 2, size, size);
+            ctx.restore();
+        }
+
+        // Add it directly as mtr substitute if needed, or another custom corner
+        text.controls.mtr = new fabric.Control({
+            x: 0.5,
+            y: 0.5,
+            offsetY: 5,
+            offsetX: 5,
+            actionHandler: fabric.controlsUtils.rotationWithSnapping,
+            cursorStyle: 'crosshair',
+            actionName: 'rotate',
+            render: renderRotateIcon,
+            cornerSize: 24
+        });
+
+        // Add a scale control
+        const scaleIcon = "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 512 512' style='enable-background:new 0 0 512 512;' xml:space='preserve'%3E%3Ccircle style='fill:%232196F3;' cx='256' cy='256' r='256'/%3E%3Cpath style='fill:%23FFFFFF;' d='M351.5,160.5v104.2h-29.8v-53.3L209.6,323.5v-53.3h-29.8v104.2h104.2v-29.8h-53.3L342.8,232.5v53.3h29.8 V160.5H351.5z'/%3E%3C/svg%3E";
+        const scaleImg = document.createElement('img');
+        scaleImg.src = scaleIcon;
+
+        function renderScaleIcon(ctx, left, top, styleOverride, fabricObject) {
+            const size = this.cornerSize;
+            ctx.save();
+            ctx.translate(left, top);
+            ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
+            ctx.drawImage(scaleImg, -size / 2, -size / 2, size, size);
+            ctx.restore();
+        }
+
+        text.controls.bl = new fabric.Control({
+            x: -0.5,
+            y: 0.5,
+            offsetY: 5,
+            offsetX: -5,
+            actionHandler: fabric.controlsUtils.scalingEqually,
+            cursorStyle: 'nwse-resize',
+            actionName: 'scale',
+            render: renderScaleIcon,
+            cornerSize: 24
+        });
+
+        window.fabricCanvas.add(text);
+        window.fabricCanvas.renderAll();
+        return text;
+    }
+
+    // Filter application via Fabric logic instead of CSS string
+    function applyFiltersToAllPhotos() {
+        if (!window.fabricCanvas) return;
+
+        window.fabricCanvas.getObjects().forEach(obj => {
+            if (obj.type === 'image') {
+                obj.filters = [];
+                if (currentFilters.brightness !== 0) {
+                    obj.filters.push(new fabric.Image.filters.Brightness({ brightness: currentFilters.brightness / 100 }));
+                }
+                if (currentFilters.contrast !== 0) {
+                    obj.filters.push(new fabric.Image.filters.Contrast({ contrast: currentFilters.contrast / 100 }));
+                }
+                if (currentFilters.saturation !== 0) {
+                    obj.filters.push(new fabric.Image.filters.Saturation({ saturation: currentFilters.saturation / 100 }));
+                }
+                // Handle presets if any (e.g. sepia)
+                if (currentFilters.preset === 'sepia') {
+                    obj.filters.push(new fabric.Image.filters.Sepia());
+                } else if (currentFilters.preset === 'noir') {
+                    obj.filters.push(new fabric.Image.filters.Grayscale());
+                } else if (currentFilters.preset === 'vintage') {
+                    obj.filters.push(new fabric.Image.filters.Sepia());
+                    obj.filters.push(new fabric.Image.filters.Contrast({ contrast: -0.2 }));
+                } else if (currentFilters.preset === 'vivid') {
+                    obj.filters.push(new fabric.Image.filters.Saturation({ saturation: 0.5 }));
+                    obj.filters.push(new fabric.Image.filters.Contrast({ contrast: 0.2 }));
+                }
+
+                obj.applyFilters();
+            }
+        });
+        window.fabricCanvas.renderAll();
     }
 
     // Get frame classes - simple spacing only
@@ -475,115 +660,24 @@ function initPage() {
     clearEmojisBtn.addEventListener('click', () => {
         emojis = [];
         selectedEmojiForEdit = null;
-        hideEmojiEditControls();
-        renderPhotoStrip();
+        if (window.fabricCanvas) {
+            const objects = window.fabricCanvas.getObjects();
+            objects.forEach(obj => {
+                if (obj.type === 'text') {
+                    window.fabricCanvas.remove(obj);
+                }
+            });
+            window.fabricCanvas.renderAll();
+        }
     });
 
-    // Emoji edit controls
-    const emojiEditControls = document.getElementById('emojiEditControls');
-    const emojiSizeSlider = document.getElementById('emojiSizeSlider');
-    const emojiSizeValue = document.getElementById('emojiSizeValue');
-    const changeEmojiBtn = document.getElementById('changeEmojiBtn');
-    const deleteEmojiBtn = document.getElementById('deleteEmojiBtn');
-    const doneEditingBtn = document.getElementById('doneEditingBtn');
-
-    function showEmojiEditControls() {
-        if (selectedEmojiForEdit) {
-            emojiEditControls.classList.remove('hidden');
-            emojiSizeSlider.value = selectedEmojiForEdit.size || 48;
-            emojiSizeValue.textContent = (selectedEmojiForEdit.size || 48) + 'px';
-        }
-    }
-
+    // Helper to hide controls when deselected
     function hideEmojiEditControls() {
-        emojiEditControls.classList.add('hidden');
+        if (window.fabricCanvas) {
+            window.fabricCanvas.discardActiveObject();
+            window.fabricCanvas.renderAll();
+        }
     }
-
-    // Size slider
-    emojiSizeSlider.addEventListener('input', (e) => {
-        const newSize = parseInt(e.target.value);
-        emojiSizeValue.textContent = newSize + 'px';
-        if (selectedEmojiForEdit) {
-            selectedEmojiForEdit.size = newSize;
-            renderPhotoStrip();
-        }
-    });
-
-    // Change emoji type
-    changeEmojiBtn.addEventListener('click', () => {
-        emojiModal.classList.remove('hidden');
-        emojiPlacementMode = false;
-    });
-
-    // Update emoji selection to change existing emoji if one is selected
-    emojiButtons.forEach(btn => {
-        const originalHandler = btn.onclick;
-        btn.onclick = null;
-    });
-
-    emojiButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const newEmoji = btn.dataset.emoji;
-
-            // If editing an existing emoji, change its type
-            if (selectedEmojiForEdit) {
-                selectedEmojiForEdit.emoji = newEmoji;
-                emojiModal.classList.add('hidden');
-                renderPhotoStrip();
-                return;
-            }
-
-            // Otherwise, normal placement mode
-            selectedEmoji = newEmoji;
-            emojiPlacementMode = true;
-
-            // Visual feedback
-            emojiButtons.forEach(b => b.classList.remove('bg-primary/20'));
-            btn.classList.add('bg-primary/20');
-
-            // Close modal and allow placement
-            emojiModal.classList.add('hidden');
-            renderPhotoStrip();
-
-            // Show instruction
-            const instruction = document.createElement('div');
-            instruction.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-full z-50';
-            instruction.textContent = 'Click on the photo strip to place emoji. Click emoji to edit.';
-            document.body.appendChild(instruction);
-
-            setTimeout(() => {
-                instruction.remove();
-            }, 3000);
-        });
-    });
-
-    // Delete emoji
-    deleteEmojiBtn.addEventListener('click', () => {
-        if (selectedEmojiForEdit) {
-            emojis = emojis.filter(e => e.id !== selectedEmojiForEdit.id);
-            selectedEmojiForEdit = null;
-            hideEmojiEditControls();
-            renderPhotoStrip();
-        }
-    });
-
-    // Done editing
-    doneEditingBtn.addEventListener('click', () => {
-        selectedEmojiForEdit = null;
-        hideEmojiEditControls();
-        renderPhotoStrip();
-    });
-
-    // Click outside to deselect
-    document.addEventListener('click', (e) => {
-        if (!emojiEditControls.contains(e.target) &&
-            !e.target.closest('[data-emoji-id]') &&
-            !e.target.closest('#emojiModal')) {
-            selectedEmojiForEdit = null;
-            hideEmojiEditControls();
-            renderPhotoStrip();
-        }
-    });
 
     // Filter modal controls
     const filterModal = document.getElementById('filterModal');
@@ -697,7 +791,7 @@ function initPage() {
             currentFilters.preset = selectedPreset.parentElement.dataset.filter;
         }
 
-        renderPhotoStrip();
+        applyFiltersToAllPhotos();
         filterModal.classList.add('hidden');
     });
 
@@ -716,175 +810,56 @@ function initPage() {
 
         modalBrightnessValue.textContent = '0';
         modalContrastValue.textContent = '0';
-        modalSaturationValue.textContent = '0';
-
         filterPresets.forEach(p => {
             p.querySelector('div').classList.remove('border-primary');
             p.querySelector('div').classList.add('border-transparent');
         });
         document.querySelector('[data-filter="none"] div').classList.add('border-primary');
-    });
 
-    // Helper function to draw rounded rectangle (polyfill for roundRect)
-    function drawRoundedRect(ctx, x, y, width, height, radius) {
-        ctx.beginPath();
-        ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + width - radius, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-        ctx.lineTo(x + width, y + height - radius);
-        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        ctx.lineTo(x + radius, y + height);
-        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-        ctx.lineTo(x, y + radius);
-        ctx.quadraticCurveTo(x, y, x + radius, y);
-        ctx.closePath();
-    }
+        applyFiltersToAllPhotos();
+    });
 
     // Download functionality
     const downloadBtn = document.getElementById('downloadBtn');
     const formatSelect = document.getElementById('formatSelect');
     // Render final canvas helper
+    // Render final canvas helper
     function renderFinalCanvas() {
         return new Promise((resolve, reject) => {
             try {
-                const stripWrapper = document.getElementById('stripWrapper');
-                const tempCanvas = document.createElement('canvas');
-                const ctx = tempCanvas.getContext('2d');
-
-                const outerPadding = 32;
-                const innerPadding = 48;
-                const footerHeight = 60;
-                const cornerRadius = 16;
-
-                let innerWidth, innerHeight;
-
-                if (layoutData.layout === 'strip3') {
-                    innerWidth = 350;
-                    innerHeight = (350 * 3) + 16 + footerHeight;
-                } else if (layoutData.layout === 'strip4') {
-                    innerWidth = 350;
-                    innerHeight = (350 * 4) + 24 + footerHeight;
-                } else if (layoutData.layout === 'grid2x2') {
-                    innerWidth = 700 + 8;
-                    innerHeight = 700 + 8 + footerHeight;
-                } else if (layoutData.layout === 'row3') {
-                    innerWidth = (350 * 3) + 16;
-                    innerHeight = 350 + footerHeight;
-                }
-
-                tempCanvas.width = innerWidth + (outerPadding * 2) + (innerPadding * 2);
-                tempCanvas.height = innerHeight + (outerPadding * 2) + (innerPadding * 2);
-
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-
-                ctx.fillStyle = stripColor;
-                ctx.fillRect(outerPadding, outerPadding, innerWidth + (innerPadding * 2), innerHeight + (innerPadding * 2));
-
-                const images = container.querySelectorAll('img');
-                let imagesLoaded = 0;
-                const totalImages = images.length;
-
-                if (totalImages === 0) {
-                    resolve(tempCanvas);
+                if (!window.fabricCanvas) {
+                    reject(new Error('Canvas not initialized'));
                     return;
                 }
 
-                images.forEach((img, index) => {
-                    const tempImg = new Image();
-                    tempImg.crossOrigin = 'anonymous';
-                    tempImg.src = img.src;
+                // Deselect any active objects before export
+                window.fabricCanvas.discardActiveObject();
+                window.fabricCanvas.renderAll();
 
-                    tempImg.onload = () => {
-                        ctx.filter = getFilterString();
+                // Generate full resolution data URL by ignoring CSS scale limits
+                const multiplier = window.fabricCanvas.width / (window.fabricCanvas.getWidth() / window.fabricCanvas.getZoom());
 
-                        const totalPadding = outerPadding + innerPadding;
-                        const photoAreaWidth = innerWidth;
-                        const photoAreaHeight = innerHeight - footerHeight;
-
-                        if (layoutData.layout === 'strip3' || layoutData.layout === 'strip4') {
-                            const gap = 12;
-                            const photoSize = (photoAreaHeight - (gap * (totalImages - 1))) / totalImages;
-                            const x = totalPadding;
-                            const y = totalPadding + ((photoSize + gap) * index);
-                            const w = photoAreaWidth;
-                            const h = photoSize;
-
-                            ctx.save();
-                            drawRoundedRect(ctx, x, y, w, h, cornerRadius);
-                            ctx.clip();
-                            ctx.drawImage(tempImg, x, y, w, h);
-                            ctx.restore();
-                        } else if (layoutData.layout === 'grid2x2') {
-                            const col = index % 2;
-                            const row = Math.floor(index / 2);
-                            const gap = 12;
-                            const x = totalPadding + (col * (photoAreaWidth / 2)) + (col * gap);
-                            const y = totalPadding + (row * (photoAreaHeight / 2)) + (row * gap);
-                            const w = (photoAreaWidth / 2) - gap;
-                            const h = (photoAreaHeight / 2) - gap;
-
-                            ctx.save();
-                            drawRoundedRect(ctx, x, y, w, h, cornerRadius);
-                            ctx.clip();
-                            ctx.drawImage(tempImg, x, y, w, h);
-                            ctx.restore();
-                        } else if (layoutData.layout === 'row3') {
-                            const photoWidth = photoAreaWidth / totalImages;
-                            const gap = 12;
-                            const x = totalPadding + (photoWidth * index) + (gap * index);
-                            const y = totalPadding;
-                            const w = photoWidth - gap;
-                            const h = photoAreaHeight;
-
-                            ctx.save();
-                            drawRoundedRect(ctx, x, y, w, h, cornerRadius);
-                            ctx.clip();
-                            ctx.drawImage(tempImg, x, y, w, h);
-                            ctx.restore();
-                        }
-
-                        imagesLoaded++;
-
-                        if (imagesLoaded === totalImages) {
-                            ctx.filter = 'none';
-
-                            const stripRect = stripWrapper.getBoundingClientRect();
-                            const scaleX = photoAreaWidth / (stripRect.width || innerWidth);
-                            const scaleY = photoAreaHeight / ((stripRect.height || innerHeight) - footerHeight);
-
-                            emojis.forEach(emoji => {
-                                const emojiSize = (emoji.size || 48) * Math.min(scaleX, scaleY);
-                                ctx.font = `${emojiSize}px Arial`;
-                                ctx.fillText(emoji.emoji, totalPadding + (emoji.x * scaleX), totalPadding + (emoji.y * scaleY) + (emojiSize * 0.8));
-                            });
-
-                            const footerY = totalPadding + photoAreaHeight + 20;
-
-                            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                            ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            ctx.moveTo(totalPadding, footerY - 10);
-                            ctx.lineTo(totalPadding + photoAreaWidth, footerY - 10);
-                            ctx.stroke();
-
-                            const date = new Date();
-                            const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-                            ctx.font = '18px Inter, sans-serif';
-                            ctx.textAlign = 'left';
-                            ctx.fillText(dateStr, totalPadding, footerY + 15);
-
-                            ctx.font = 'bold 18px Inter, sans-serif';
-                            ctx.textAlign = 'right';
-                            ctx.fillText('PixBooth', totalPadding + photoAreaWidth, footerY + 15);
-
-                            ctx.textAlign = 'left';
-                            resolve(tempCanvas);
-                        }
-                    };
-                    tempImg.onerror = () => reject(new Error('Failed to load image'));
+                const dataURL = window.fabricCanvas.toDataURL({
+                    format: 'jpeg',
+                    quality: 0.95,
+                    multiplier: multiplier
                 });
+
+                // Create a temporary standard image/canvas from the dataURL to return it in the format the rest of the code expects
+                const tempCanvas = document.createElement('canvas');
+                const ctx = tempCanvas.getContext('2d');
+                const img = new Image();
+
+                img.onload = () => {
+                    tempCanvas.width = img.width;
+                    tempCanvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    resolve(tempCanvas);
+                };
+
+                img.onerror = () => reject(new Error('Failed to render final canvas format'));
+                img.src = dataURL;
+
             } catch (error) {
                 reject(error);
             }
