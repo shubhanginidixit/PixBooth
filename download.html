@@ -15,6 +15,8 @@
     <link href="css/shared.css" rel="stylesheet" />
     <script src="js/db.js"></script>
     <link href="css/download.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+</head>
 
 <body class="font-display animated-bg">
     <div class="relative flex h-auto min-h-screen w-full flex-col text-text-light group/design-root overflow-x-hidden">
@@ -252,32 +254,7 @@
         </div>
     </div>
 
-    <!-- Emoji Edit Controls -->
-    <div id="emojiEditControls"
-        class="hidden fixed bottom-4 sm:bottom-20 left-1/2 transform -translate-x-1/2 bg-white dark:bg-background-dark rounded-xl shadow-2xl p-3 sm:p-4 z-40 border border-primary max-w-[95vw]">
-        <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
-            <div class="flex flex-col gap-2">
-                <label class="text-xs font-medium">Size</label>
-                <input id="emojiSizeSlider" type="range" min="24" max="120" value="48"
-                    class="w-32 h-1 bg-surface-light dark:bg-surface-dark rounded-full appearance-none cursor-pointer accent-primary">
-                <span id="emojiSizeValue" class="text-xs text-center">48px</span>
-            </div>
-            <div class="flex gap-2 w-full sm:w-auto">
-                <button id="changeEmojiBtn"
-                    class="flex-1 sm:flex-none rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium bg-primary text-text-light dark:text-text-dark hover:brightness-110">
-                    Change
-                </button>
-                <button id="deleteEmojiBtn"
-                    class="flex-1 sm:flex-none rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium bg-red-500 text-white hover:brightness-110">
-                    Delete
-                </button>
-                <button id="doneEditingBtn"
-                    class="flex-1 sm:flex-none rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark hover:bg-opacity-80">
-                    Done
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- Emoji Edit Controls Removed - Fabric.js provides native corner drag controls -->
 
     <!-- Emoji Picker Modal -->
     <div id="emojiModal" role="dialog" aria-modal="true" aria-label="Add Emoji"
