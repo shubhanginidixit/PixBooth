@@ -30,7 +30,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             strips.forEach((strip, index) => {
                 const item = document.createElement('div');
-                item.className = 'gallery-item relative overflow-hidden rounded-2xl shadow-lg cursor-pointer group bg-surface-light dark:bg-surface-dark border flex border-white/20';
+                // Random rotation between -3 and 3 degrees for a scattered look
+                const rotation = (Math.random() * 6 - 3).toFixed(1);
+                item.className = `gallery-item relative overflow-hidden shadow-polaroid cursor-pointer group bg-[#fdfbf7] p-3 pb-12 flex border border-border-light/20 rounded-sm mb-4`;
+                item.style.transform = `rotate(${rotation}deg)`;
 
                 // Staggered animation delay
                 item.style.animationDelay = `${(index % 10) * 0.1}s`;
@@ -45,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 overlay.className = 'gallery-overlay absolute inset-0 opacity-0 transition-opacity duration-300 flex flex-col justify-end p-4';
 
                 const dateText = document.createElement('p');
-                dateText.className = 'text-white text-xs font-medium';
+                dateText.className = 'text-white text-xs font-typewriter font-bold';
                 dateText.textContent = new Date(strip.timestamp).toLocaleString(undefined, {
                     month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                 });
@@ -54,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 actionDiv.className = 'flex justify-between items-center mt-2';
 
                 const layoutBadge = document.createElement('span');
-                layoutBadge.className = 'text-[10px] uppercase font-bold bg-primary text-gray-900 px-2 py-1 rounded-full';
+                layoutBadge.className = 'text-[10px] font-bold bg-primary text-white px-2 py-1 rounded-sm shadow-sm font-handwritten text-sm';
                 layoutBadge.textContent = strip.layout;
 
                 const interactDiv = document.createElement('div');
