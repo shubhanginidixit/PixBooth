@@ -3,30 +3,26 @@ tailwind.config = {
     theme: {
         extend: {
             colors: {
-                "primary": "#e7b923",
-                "primary-dark": "#c99e1c",
-                "background-light": "rgb(176, 236, 181)",
-                "background-dark": "rgb(176, 236, 181)",
-                "surface-light": "#f3f0e7",
-                "surface-dark": "#2a261c",
-                "text-light": "#1b180e",
-                "text-dark": "#f3f0e7",
-                "border-light": "#e5e7eb",
-                "border-dark": "#374151"
+                "primary": "#c15b3d", // Warm rust
+                "primary-dark": "#a3492e",
+                "accent": "#d6b88b", // Sand/tape color
+                "background-light": "#f4f0ec", // Kraft paper base
+                "background-dark": "#2c2a26",  // Used for text primarily now
+                "surface-light": "#fdfcf9", // Polaroid white
+                "surface-dark": "#e8e3d8", // Darker paper
+                "text-light": "#f4f0ec",
+                "text-dark": "#2c2a26", // Charcoal
+                "border-light": "#e0d8c8",
+                "border-dark": "#8c8273"
             },
             fontFamily: {
-                "display": ["Inter", "sans-serif"]
-            },
-            borderRadius: {
-                "DEFAULT": "0.5rem",
-                "lg": "1rem",
-                "xl": "1.5rem",
-                "2xl": "2rem",
-                "full": "9999px"
+                "display": ["'Courier Prime'", "monospace"],
+                "handwritten": ["'Caveat'", "cursive"],
+                "typewriter": ["'Special Elite'", "monospace"]
             },
             boxShadow: {
-                'soft-lg': '0 8px 30px rgba(0, 0, 0, 0.08)',
-                'soft-xl': '0 12px 40px rgba(0, 0, 0, 0.1)'
+                'polaroid': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 0 4px rgba(0,0,0,0.02)',
+                'scrapbook': '2px 4px 12px rgba(0,0,0,0.08), 1px 1px 3px rgba(0,0,0,0.1)'
             }
         },
     },
