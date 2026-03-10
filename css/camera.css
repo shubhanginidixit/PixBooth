@@ -22,11 +22,17 @@
         /* Flash effect overlay */
         @keyframes flashEffect {
             0% {
-                opacity: 0;
+                opacity: 1;
+                background-color: #fff8e7;
             }
 
-            15% {
-                opacity: 0.9;
+            40% {
+                opacity: 1;
+                background-color: #fff8e7;
+            }
+
+            41% {
+                opacity: 0;
             }
 
             100% {
@@ -35,29 +41,34 @@
         }
 
         .flash-overlay {
-            animation: flashEffect 0.4s ease-out forwards;
+            animation: flashEffect 0.2s ease-out forwards;
         }
 
         /* Countdown scale animation */
         @keyframes countdownPop {
             0% {
-                transform: scale(0.5);
+                transform: scale(0.3) rotate(-10deg);
                 opacity: 0;
             }
 
-            50% {
-                transform: scale(1.1);
+            40% {
+                transform: scale(1.1) rotate(5deg);
+                opacity: 1;
+            }
+
+            60% {
+                transform: scale(1) rotate(0deg);
                 opacity: 1;
             }
 
             100% {
-                transform: scale(1);
+                transform: scale(1) rotate(0deg);
                 opacity: 1;
             }
         }
 
         .countdown-animate {
-            animation: countdownPop 0.5s ease-out;
+            animation: countdownPop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         /* Ghost thumbnail placeholder */

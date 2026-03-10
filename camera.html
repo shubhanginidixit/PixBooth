@@ -7,7 +7,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>PixBooth</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Caveat:wght@400..700&family=Special+Elite&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <script src="js/tailwind-config.js"></script>
     <link href="css/shared.css" rel="stylesheet" />
@@ -15,53 +15,65 @@
     <link href="css/camera.css" rel="stylesheet" />
 </head>
 
-<body class="animated-bg font-display text-text-light overflow-hidden">
+<body class="font-display overflow-hidden">
+    <div class="noise-overlay"></div>
     <div class="relative flex w-full flex-col overflow-hidden" style="height: 100vh; height: 100dvh;">
         <div class="flex flex-col lg:flex-row h-full min-h-0">
             <!-- Main Content -->
-            <main class="flex flex-1 flex-col p-3 sm:p-4 lg:p-6 min-h-0 overflow-hidden">
-                <!-- Top Bar (glassmorphism) -->
+            <main class="flex flex-1 flex-col p-3 sm:p-4 lg:p-6 min-h-0 overflow-hidden relative z-10">
+                <!-- Top Bar -->
                 <div
-                    class="flex flex-wrap items-center justify-between gap-2 sm:gap-4 pb-3 glass rounded-xl px-3 py-2 mb-2">
+                    class="flex flex-wrap items-center justify-between gap-2 sm:gap-4 pb-3 polaroid-frame !p-3 mb-2 transform -rotate-1 relative z-30">
+                    <div class="masking-tape top-[-8px] right-4 w-12 h-5 transform rotate-3"></div>
                     <a href="index.html" aria-label="Back to layout selection"
-                        class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-all hover:bg-white/30">
+                        class="scrapbook-btn flex items-center gap-2 px-3 py-1.5 text-sm font-bold">
                         <span class="material-symbols-outlined text-base">arrow_back</span>
-                        <span class="hidden sm:inline">Choose Layout</span>
+                        <span class="hidden sm:inline">Back</span>
                     </a>
-                    <p id="progressText" class="text-sm sm:text-base font-semibold leading-normal">
-                        Capturing: 0/4 photos</p>
+                    <p id="progressText" class="text-xl sm:text-2xl font-handwritten text-primary font-bold drop-shadow-sm">
+                        Capturing: 0/4</p>
                     <button id="cameraSwitchBtn" aria-label="Switch camera"
-                        class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-all hover:bg-white/30">
+                        class="scrapbook-btn flex items-center gap-2 px-3 py-1.5 text-sm font-bold">
                         <span class="material-symbols-outlined text-base">videocam</span>
-                        <span id="cameraLabel" class="hidden sm:inline">Front Camera</span>
-                        <span class="material-symbols-outlined text-base hidden sm:inline">expand_more</span>
+                        <span id="cameraLabel" class="hidden sm:inline">Swap</span>
                     </button>
                 </div>
 
                 <!-- Video Feed & Countdown -->
                 <div class="relative flex flex-1 items-center justify-center p-1 sm:p-2 min-h-0">
-                    <div class="relative w-full max-w-5xl rounded-2xl border-2 border-white/40 shadow-2xl overflow-hidden"
+                    <div class="relative w-full max-w-5xl polaroid-frame overflow-hidden bg-black !p-3 sm:!p-4 pb-12 sm:pb-16 transform rotate-1 transition-all duration-300 shadow-xl"
                         style="aspect-ratio: 4/3; max-height: 100%;">
+                        <div class="masking-tape top-[-10px] left-1/2 -translate-x-1/2 w-20 h-6 transform -rotate-2"></div>
                         <video id="videoElement" autoplay playsinline muted
-                            class="h-full w-full rounded-2xl object-cover"></video>
+                            class="h-full w-full object-cover rounded-sm border border-border-dark/20"></video>
                         <canvas id="captureCanvas" class="hidden"></canvas>
 
+                        <!-- Hand-drawn style crosshairs -->
+                        <div class="absolute inset-x-0 inset-y-0 bottom-12 sm:bottom-16 pointer-events-none z-20 flex items-center justify-center">
+                            <!-- Center bracket -->
+                            <div class="w-12 h-12 border border-white opacity-50 mix-blend-overlay rounded-full border-dashed"></div>
+                            <!-- Corner marks -->
+                            <div class="absolute top-8 left-8 w-6 h-6 border-l-2 border-t-2 border-white opacity-60 mix-blend-overlay border-dashed"></div>
+                            <div class="absolute top-8 right-8 w-6 h-6 border-r-2 border-t-2 border-white opacity-60 mix-blend-overlay border-dashed"></div>
+                            <div class="absolute bottom-10 left-8 w-6 h-6 border-l-2 border-b-2 border-white opacity-60 mix-blend-overlay border-dashed"></div>
+                            <div class="absolute bottom-10 right-8 w-6 h-6 border-r-2 border-b-2 border-white opacity-60 mix-blend-overlay border-dashed"></div>
+                        </div>
+
                         <!-- Flash Overlay (hidden by default) -->
-                        <div id="flashOverlay" class="absolute inset-0 bg-white rounded-2xl pointer-events-none hidden"
-                            style="opacity:0;"></div>
+                        <div id="flashOverlay" class="absolute inset-0 bg-[#fff8e7] pointer-events-none hidden"
+                            style="opacity:0; z-index: 60;"></div>
 
                         <!-- Effects Canvas Overlay -->
                         <canvas id="effectsCanvas"
-                            class="absolute inset-0 w-full h-full rounded-2xl pointer-events-none"
+                            class="absolute inset-0 w-full h-full pointer-events-none z-30"
                             style="display:none;"></canvas>
 
                         <!-- Countdown Overlay -->
                         <div id="countdownOverlay" role="alert" aria-live="assertive"
-                            class="absolute inset-0 hidden items-center justify-center rounded-2xl"
-                            style="background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);">
+                            class="absolute inset-x-0 inset-y-0 bottom-12 sm:bottom-16 hidden items-center justify-center pointer-events-none z-50">
                             <h1 id="countdownNumber"
-                                class="text-primary text-[12rem] sm:text-[16rem] font-black leading-none countdown-animate"
-                                style="text-shadow: 0 0 60px rgba(231, 185, 35, 0.5), 0 4px 30px rgba(0,0,0,0.4);">3
+                                class="text-primary text-[15rem] sm:text-[25rem] font-bold leading-none countdown-animate"
+                                style="font-family: 'Caveat', cursive; text-shadow: 4px 6px 12px rgba(0,0,0,0.4);">3
                             </h1>
                         </div>
                     </div>
@@ -76,27 +88,27 @@
                         </div>
                     </div>
                     <!-- Action Bar -->
-                    <div class="flex w-full max-w-5xl items-center justify-between gap-2 glass rounded-xl px-3 py-2">
+                    <div class="flex w-full max-w-5xl items-center justify-between gap-2 polaroid-frame !p-3 transform rotate-1 mt-2">
                         <button id="toggleFiltersBtn" aria-label="Toggle filters panel"
-                            class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition-all hover:bg-white/30">
+                            class="scrapbook-btn flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-bold">
                             <span class="material-symbols-outlined text-base">tune</span>
                             <span class="hidden md:inline">Filters</span>
                         </button>
                         <div class="flex gap-3 sm:gap-4 items-center mx-auto lg:mx-0">
                             <label for="uploadInput" aria-label="Upload a photo"
-                                class="cursor-pointer flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full glass-strong border-2 border-primary/50 transition-all duration-200 ease-in-out active:scale-95 hover:scale-105 hover:border-primary">
+                                class="cursor-pointer flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center scrapbook-btn rounded-full">
                                 <span class="material-symbols-outlined text-lg sm:text-xl text-primary">upload</span>
                             </label>
                             <input id="uploadInput" type="file" accept="image/*" class="hidden" />
                             <button id="captureBtn" aria-label="Take a photo"
-                                class="capture-pulse group relative flex h-16 w-16 sm:h-18 sm:w-18 items-center justify-center rounded-full bg-gradient-to-br from-primary to-yellow-400 ring-4 ring-primary/30 transition-all duration-200 ease-in-out active:scale-90 hover:scale-105">
+                                class="cursor-pointer flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center scrapbook-btn-primary rounded-full transform hover:scale-105 active:scale-95 transition-transform shadow-md">
                                 <span
-                                    class="material-symbols-outlined fill text-2xl sm:text-3xl text-gray-900">camera</span>
+                                    class="material-symbols-outlined fill text-3xl sm:text-4xl">camera</span>
                             </button>
                         </div>
                         <button id="finishBtn" disabled
-                            class="rounded-lg bg-primary/20 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-primary transition-all hover:bg-primary/30 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100">
-                            <span class="hidden sm:inline">Finish & Preview</span>
+                            class="scrapbook-btn px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed">
+                            <span class="hidden sm:inline">Finish</span>
                             <span class="sm:hidden">Done</span>
                         </button>
                     </div>
@@ -106,12 +118,12 @@
             <!-- Filter Panel Backdrop (mobile only) -->
             <div id="filterBackdrop" class="hidden fixed inset-0 bg-black/40 z-30 lg:hidden" style="z-index:35;"></div>
 
-            <!-- Live Filter Panel (glassmorphism) -->
+            <!-- Filter Panel -->
             <aside id="filterPanel"
                 class="hidden lg:flex fixed lg:relative bottom-0 left-0 right-0 lg:inset-auto z-40 lg:z-auto
                        h-auto lg:h-full w-full lg:w-[340px] shrink-0 flex-col
-                       border-t lg:border-t-0 lg:border-l border-white/30 glass-strong p-4 shadow-2xl
-                       max-h-[75vh] lg:max-h-none rounded-t-2xl lg:rounded-none">
+                       border-t-4 border-l-4 border-black brutal-box p-4
+                       max-h-[75vh] lg:max-h-none">
                 <div class="flex items-center gap-3 pb-4">
                     <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20">
                         <span class="material-symbols-outlined text-primary">auto_awesome</span>
@@ -373,22 +385,21 @@
                 </div>
 
                 <!-- Global Controls -->
-                <div class="flex flex-col gap-3 border-t border-white/20 pt-4">
+                <div class="flex flex-col gap-3 border-t-2 border-black pt-4 mt-2">
                     <div class="grid grid-cols-1 gap-1">
                         <div class="flex items-center justify-between">
-                            <label class="text-xs font-semibold">Filter Intensity</label>
-                            <span id="intensityValue" class="text-xs font-medium text-text-light/50">100%</span>
+                            <label class="text-xs font-bold uppercase tracking-wider">Filter Intensity</label>
+                            <span id="intensityValue" class="text-xs font-bold text-primary">100%</span>
                         </div>
                         <input id="intensitySlider"
-                            class="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-black/10 accent-primary"
+                            class="h-2 w-full cursor-pointer appearance-none bg-black accent-primary"
                             max="100" min="0" type="range" value="100" />
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-2 gap-2 mt-2">
                         <button id="resetBtn"
-                            class="rounded-xl bg-white/20 px-4 py-2.5 text-sm font-bold transition-all hover:bg-white/30 hover:scale-105 active:scale-95">Reset
-                            All</button>
+                            class="brutal-btn px-4 py-2.5 text-sm font-bold uppercase tracking-wider">Reset</button>
                         <button id="randomBtn"
-                            class="rounded-xl bg-gradient-to-r from-primary/30 to-yellow-300/30 px-4 py-2.5 text-sm font-bold transition-all hover:from-primary/40 hover:to-yellow-300/40 hover:scale-105 active:scale-95">Random</button>
+                            class="brutal-btn-primary px-4 py-2.5 text-sm font-bold uppercase tracking-wider">Random</button>
                     </div>
                 </div>
             </aside>
