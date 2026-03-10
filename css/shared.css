@@ -3,7 +3,9 @@
    =========================== */
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Courier Prime', monospace;
+    background-color: #f4f0ec; /* Warm Kraft Paper Base */
+    color: #2c2a26; /* Charcoal */
 }
 
 /* Material Symbols defaults */
@@ -15,85 +17,101 @@ body {
     font-variation-settings: 'FILL' 1;
 }
 
-/* Animated gradient background */
-@keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
-    }
-
-    50% {
-        background-position: 100% 50%;
-    }
-
-    100% {
-        background-position: 0% 50%;
-    }
+/* Vintage Paper Texture & Noise */
+.noise-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.25;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opactity='0.8'/%3E%3C/svg%3E");
+    background-color: #d2c0a8; /* Warm tint over noise */
+    mix-blend-mode: multiply;
 }
 
-.animated-bg {
-    background: linear-gradient(-45deg, #b0ecb5, #7ecfc0, #a8e6cf, #88d8a8, #c1f0c1);
-    background-size: 400% 400%;
-    animation: gradientShift 15s ease infinite;
+/* Scrapbook UI classes */
+.polaroid-frame {
+    background-color: #fdfcf9;
+    border: 1px solid #e0d8c8;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), inset 0 0 4px rgba(0,0,0,0.02);
+    /* Uneven padding gives it a polaroid feel */
+    padding: 12px 12px 32px 12px;
+    border-radius: 2px;
 }
 
-/* Glassmorphism */
-.glass {
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.35);
+.scrapbook-btn {
+    background-color: #fdfcf9;
+    border: 1px solid #e0d8c8;
+    color: #2c2a26;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+    border-radius: 2px;
+    transition: all 0.2s ease;
+    font-family: 'Special Elite', monospace;
 }
 
-.glass-strong {
-    background: rgba(255, 255, 255, 0.45);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+.scrapbook-btn:hover {
+    transform: rotate(-1deg) scale(1.02);
+    box-shadow: 3px 4px 12px rgba(0,0,0,0.1);
+}
+
+.scrapbook-btn:active {
+    transform: rotate(0deg) scale(0.98);
+}
+
+.scrapbook-btn-primary {
+    background-color: #c15b3d; /* Rust */
+    border: 1px solid #a3492e;
+    color: #fdfcf9;
+    box-shadow: 2px 2px 8px rgba(193, 91, 61, 0.3);
+    border-radius: 2px;
+    transition: all 0.2s ease;
+    font-family: 'Special Elite', monospace;
+}
+
+.scrapbook-btn-primary:hover {
+    transform: rotate(1deg) scale(1.02);
+    box-shadow: 3px 4px 12px rgba(193, 91, 61, 0.4);
+}
+
+.scrapbook-btn-primary:active {
+    transform: rotate(0deg) scale(0.98);
+}
+
+/* Tape Effect */
+.masking-tape {
+    position: absolute;
+    background-color: rgba(232, 227, 216, 0.85);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    backdrop-filter: blur(2px);
+    z-index: 10;
 }
 
 /* Entrance animations */
-@keyframes fadeInUp {
+@keyframes fadeInUpClassic {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(10px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
-
 .animate-fade-in-up {
-    animation: fadeInUp 0.5s ease-out both;
+    animation: fadeInUpClassic 0.6s ease-out both;
 }
 
-.stagger-1,
-.delay-1 {
-    animation-delay: 0.1s;
-}
-
-.stagger-2,
-.delay-2 {
-    animation-delay: 0.2s;
-}
-
-.stagger-3,
-.delay-3 {
-    animation-delay: 0.3s;
-}
-
-.stagger-4 {
-    animation-delay: 0.4s;
-}
-
-.stagger-5 {
-    animation-delay: 0.5s;
-}
+.stagger-1, .delay-1 { animation-delay: 0.1s; }
+.stagger-2, .delay-2 { animation-delay: 0.2s; }
+.stagger-3, .delay-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
 
 /* Focus-visible outline for keyboard navigation */
 :focus-visible {
-    outline: 2px solid #e7b923;
+    outline: 2px solid #c15b3d;
     outline-offset: 2px;
-    border-radius: 4px;
 }
