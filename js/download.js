@@ -96,55 +96,55 @@ function initPage() {
     function renderPhotoStrip() {
         container.innerHTML = '';
 
-        // Create outer strip container with selected color and white border
+        // Create outer strip container
         const stripContainer = document.createElement('div');
-        stripContainer.className = 'bg-white p-4 rounded-2xl shadow-2xl';
-        stripContainer.style.maxWidth = '380px';
+        stripContainer.className = 'photo-strip-3d relative border border-border-light shadow-scrapbook w-full max-w-[380px] mx-auto polaroid-frame transition-transform cursor-pointer';
 
-        // Inner colored background
+        // Inner wrapper (sharp corners for brutalist display)
         const innerContainer = document.createElement('div');
-        innerContainer.className = 'p-6 rounded-xl relative';
-        innerContainer.style.backgroundColor = stripColor;
+        innerContainer.className = 'w-full relative overflow-hidden bg-white';
 
         // Container for fabric canvas
         const canvasContainer = document.createElement('div');
         canvasContainer.id = 'canvasContainer';
-        canvasContainer.style.position = 'relative';
+        canvasContainer.className = 'w-full relative overflow-hidden';
 
         // We will create a visible canvas for Fabric to attach to
         const fabricCanvasEl = document.createElement('canvas');
         fabricCanvasEl.id = 'fabricCanvas';
         canvasContainer.appendChild(fabricCanvasEl);
 
-        let canvasWidth = 380;
+        let params = {
+            photoWidth: 600,
+            photoHeight: 750,
+            paddingTop: 48,
+            paddingSide: 48,
+            paddingBottom: 48,
+            gap: 24,
+            footerHeight: 120
+        };
+
+        let canvasWidth = 0;
         let canvasHeight = 0;
-        let photoAreaWidth = 350;
 
         // Calculate dimensions based on layout
         if (layoutData.layout === 'strip3') {
-            canvasWidth = 350;
-            canvasHeight = (350 * 3) + 16 + 60; // 3 photos + gaps + footer
+            canvasWidth = (params.paddingSide * 2) + params.photoWidth;
+            canvasHeight = params.paddingTop + (params.photoHeight * 3) + (params.gap * 2) + params.footerHeight + params.paddingBottom;
         } else if (layoutData.layout === 'strip4') {
-            canvasWidth = 350;
-            canvasHeight = (350 * 4) + 24 + 60;
+            canvasWidth = (params.paddingSide * 2) + params.photoWidth;
+            canvasHeight = params.paddingTop + (params.photoHeight * 4) + (params.gap * 3) + params.footerHeight + params.paddingBottom;
         } else if (layoutData.layout === 'grid2x2') {
-            canvasWidth = 700 + 8;
-            canvasHeight = 700 + 8 + 60;
+            params.photoWidth = 600;
+            params.photoHeight = 600;
+            canvasWidth = (params.paddingSide * 2) + (params.photoWidth * 2) + params.gap;
+            canvasHeight = params.paddingTop + (params.photoHeight * 2) + params.gap + params.footerHeight + params.paddingBottom;
+            stripContainer.style.maxWidth = '600px';
         } else if (layoutData.layout === 'row3') {
-            canvasWidth = (350 * 3) + 16;
-            canvasHeight = 350 + 60;
-            stripContainer.style.maxWidth = '650px';
+            canvasWidth = (params.paddingSide * 2) + (params.photoWidth * 3) + (params.gap * 2);
+            canvasHeight = params.paddingTop + params.photoHeight + params.footerHeight + params.paddingBottom;
+            stripContainer.style.maxWidth = '800px';
         }
-
-        // Apply scale factor for UI display (so it fits on screen)
-        const scaleFactor = Math.min(1, (window.innerWidth - 80) / canvasWidth);
-        const displayWidth = canvasWidth * scaleFactor;
-        const displayHeight = canvasHeight * scaleFactor;
-
-        fabricCanvasEl.width = canvasWidth;
-        fabricCanvasEl.height = canvasHeight;
-        fabricCanvasEl.style.width = displayWidth + 'px';
-        fabricCanvasEl.style.height = displayHeight + 'px';
 
         innerContainer.appendChild(canvasContainer);
 
@@ -152,13 +152,33 @@ function initPage() {
         stripContainer.appendChild(innerContainer);
         container.appendChild(stripContainer);
 
-        // Initialize Fabric Canvas
+        // Initialize Fabric Canvas with Background Color!
         const fCanvas = new fabric.Canvas('fabricCanvas', {
             width: canvasWidth,
             height: canvasHeight,
+            backgroundColor: stripColor,
             selection: false, // Disable group selection
             preserveObjectStacking: true
         });
+
+        // Make Fabric canvas fully fluid responsive via CSS
+        const fbContainer = fCanvas.wrapperEl;
+        if (fbContainer) {
+            fbContainer.style.width = '100%';
+            fbContainer.style.height = 'auto';
+            fbContainer.style.aspectRatio = `${canvasWidth} / ${canvasHeight}`;
+
+            const lowerCanvas = fCanvas.lowerCanvasEl;
+            const upperCanvas = fCanvas.upperCanvasEl;
+            if (lowerCanvas) {
+                lowerCanvas.style.width = '100%';
+                lowerCanvas.style.height = '100%';
+            }
+            if (upperCanvas) {
+                upperCanvas.style.width = '100%';
+                upperCanvas.style.height = '100%';
+            }
+        }
 
         // Store canvas reference globally for easy access
         window.fabricCanvas = fCanvas;
@@ -169,39 +189,50 @@ function initPage() {
 
         // Footer elements
         const drawFooter = () => {
-            const footerY = canvasHeight - 40;
+            const footerYStart = canvasHeight - params.paddingBottom - params.footerHeight;
 
             // Separator Line
-            const line = new fabric.Line([0, footerY - 10, canvasWidth, footerY - 10], {
-                stroke: 'rgba(0,0,0,0.2)',
-                strokeWidth: 2,
+            const line = new fabric.Line([
+                params.paddingSide,
+                footerYStart + 30,
+                canvasWidth - params.paddingSide,
+                footerYStart + 30
+            ], {
+                stroke: 'rgba(0,0,0,0.15)',
+                strokeWidth: 3,
                 selectable: false,
                 evented: false
             });
             fCanvas.add(line);
 
+            // Text vertical center in footer area
+            const textY = footerYStart + 70;
+
             // Date
-            const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const dateStr = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }).replace(/\//g, '.');
             const dateText = new fabric.Text(dateStr, {
-                left: 0,
-                top: footerY,
-                fontSize: 18,
-                fontFamily: 'Inter, sans-serif',
-                fill: 'rgba(0, 0, 0, 0.6)',
+                left: params.paddingSide + 10,
+                top: textY,
+                fontSize: 28,
+                fontFamily: 'Courier Prime, monospace',
+                fontWeight: 700,
+                fill: '#2c2825',
                 selectable: false,
-                evented: false
+                evented: false,
+                originY: 'center'
             });
             fCanvas.add(dateText);
 
             // Branding
             const brandText = new fabric.Text('PixBooth', {
-                left: canvasWidth,
-                top: footerY,
-                fontSize: 18,
-                fontWeight: 'bold',
-                fontFamily: 'Inter, sans-serif',
-                fill: 'rgba(0, 0, 0, 0.6)',
+                left: canvasWidth - params.paddingSide - 10,
+                top: textY,
+                fontSize: 48,
+                fontWeight: 700,
+                fontFamily: 'Caveat, cursive',
+                fill: '#e76f51', // primary color match
                 originX: 'right',
+                originY: 'center',
                 selectable: false,
                 evented: false
             });
@@ -211,31 +242,19 @@ function initPage() {
         const addImagesToCanvas = () => {
             capturedPhotos.forEach((photo, index) => {
                 fabric.Image.fromURL(photo.placeholder, (img) => {
-                    // Calculate positions based on layout
-                    const photoAreaHeight = canvasHeight - 60;
-                    let x = 0, y = 0, w = 0, h = 0;
+                    let x = 0, y = 0, w = params.photoWidth, h = params.photoHeight;
 
                     if (layoutData.layout === 'strip3' || layoutData.layout === 'strip4') {
-                        const gap = 12;
-                        const photoSize = (photoAreaHeight - (gap * (totalPhotos - 1))) / totalPhotos;
-                        x = 0;
-                        y = (photoSize + gap) * index;
-                        w = canvasWidth;
-                        h = photoSize;
+                        x = params.paddingSide;
+                        y = params.paddingTop + (index * (h + params.gap));
                     } else if (layoutData.layout === 'grid2x2') {
                         const col = index % 2;
                         const row = Math.floor(index / 2);
-                        const gap = 12;
-                        w = (canvasWidth / 2) - gap;
-                        h = (photoAreaHeight / 2) - gap;
-                        x = col * (w + gap);
-                        y = row * (h + gap);
+                        x = params.paddingSide + (col * (w + params.gap));
+                        y = params.paddingTop + (row * (h + params.gap));
                     } else if (layoutData.layout === 'row3') {
-                        const gap = 12;
-                        w = (canvasWidth / totalPhotos) - gap;
-                        h = photoAreaHeight;
-                        x = index * (w + gap);
-                        y = 0;
+                        x = params.paddingSide + (index * (w + params.gap));
+                        y = params.paddingTop;
                     }
 
                     // Setup Image properties
@@ -260,14 +279,12 @@ function initPage() {
                         top: y + (h - img.getScaledHeight()) / 2
                     });
 
-                    // Clip path for rounded corners
+                    // Hard edges instead of rounded crop for brutalist look
                     const clipPath = new fabric.Rect({
                         left: x,
                         top: y,
                         width: w,
                         height: h,
-                        rx: 16,
-                        ry: 16,
                         absolutePositioned: true
                     });
 
@@ -369,6 +386,55 @@ function initPage() {
         innerContainer.appendChild(canvasContainer);
         stripContainer.appendChild(innerContainer);
         container.appendChild(stripContainer);
+
+        // 3D Tilt Effect
+        setupTiltEffect(stripContainer);
+    }
+
+    function setupTiltEffect(element) {
+        let isHovered = false;
+
+        const handleMouseMove = (e) => {
+            if (!isHovered) return;
+            
+            const rect = element.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            // Calculate rotation (softer vintage tilt max 5 degrees)
+            const rotateX = ((y - centerY) / centerY) * -5;
+            const rotateY = ((x - centerX) / centerX) * 5;
+            
+            element.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        };
+
+        const handleMouseEnter = () => {
+            isHovered = true;
+            element.style.transition = 'transform 0.1s ease-out';
+        };
+
+        const handleMouseLeave = () => {
+            isHovered = false;
+            element.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            element.style.transform = 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        };
+
+        element.addEventListener('mousemove', handleMouseMove);
+        element.addEventListener('mouseenter', handleMouseEnter);
+        element.addEventListener('mouseleave', handleMouseLeave);
+        
+        // Touch support
+        element.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                isHovered = true;
+                const touch = e.touches[0];
+                handleMouseMove(touch);
+            }
+        });
+        element.addEventListener('touchend', handleMouseLeave);
     }
 
     // Custom delete control icon
@@ -561,12 +627,6 @@ function initPage() {
 
     // Initial render
     renderPhotoStrip();
-
-    // Update page title with layout name
-    const titleElement = document.querySelector('h1');
-    if (titleElement) {
-        titleElement.textContent = `Your ${layoutData.name} Photo Strip`;
-    }
 
     // Color selection
     const colorOptions = document.querySelectorAll('.color-option');
