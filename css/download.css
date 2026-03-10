@@ -90,3 +90,37 @@
         .sparkle-text {
             animation: sparkle 2s ease-in-out infinite;
         }
+
+        /* 3D Photo Strip Styles */
+        #photoStripContainer {
+            perspective: 1200px;
+        }
+
+        .photo-strip-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+        }
+
+        .photo-strip-3d::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+            opacity: 0.18;
+            mix-blend-mode: multiply;
+            z-index: 10;
+        }
+
+        /* Glare effect on the strip */
+        .strip-glare {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.4) 25%, transparent 30%);
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 15;
+            transition: transform 0.1s ease-out;
+            transform: translateX(-100%);
+        }

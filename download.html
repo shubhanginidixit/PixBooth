@@ -8,8 +8,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Caveat:wght@400..700&family=Special+Elite&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <script src="js/tailwind-config.js"></script>
     <link href="css/shared.css" rel="stylesheet" />
@@ -18,135 +17,153 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 </head>
 
-<body class="font-display animated-bg">
-    <div class="relative flex h-auto min-h-screen w-full flex-col text-text-light group/design-root overflow-x-hidden">
-        <div class="layout-container flex h-full grow flex-col">
-            <div class="px-4 sm:px-6 md:px-10 lg:px-20 flex flex-1 justify-center py-5">
+<body class="font-display min-h-screen selection:bg-primary/30 selection:text-primary">
+    <div class="noise-overlay"></div>
+
+    <div class="relative flex h-auto min-h-screen w-full flex-col text-text-dark group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col relative z-10">
+            <div class="px-4 sm:px-6 md:px-10 lg:px-20 flex flex-1 justify-center py-6">
                 <div class="layout-content-container flex flex-col max-w-[960px] w-full flex-1 items-center">
-                    <div class="flex flex-wrap justify-center gap-3 p-4 text-center animate-fade-in-up">
+
+                    <!-- Header -->
+                    <div class="flex flex-col items-center gap-2 p-4 text-center animate-fade-in-up mb-4 relative z-20">
+                        <div class="masking-tape top-[-8px] left-1/2 -translate-x-1/2 w-20 h-6 transform rotate-2"></div>
                         <h1
-                            class="gradient-text text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
-                            Your
-                            Photo Strip</h1>
+                            class="text-5xl sm:text-6xl md:text-7xl font-handwritten font-black leading-tight tracking-tight text-primary drop-shadow-sm transform -rotate-1">
+                            Your Photo Strip
+                        </h1>
+                        <p class="text-text-dark/80 font-typewriter text-base sm:text-lg font-bold transform rotate-1">Ready to share, save, or re-style!</p>
                     </div>
-                    <div class="w-full flex justify-center p-4">
+
+                    <!-- Canvas/Strip Output Area -->
+                    <div class="w-full flex justify-center px-2 sm:px-4 pb-4">
                         <div id="photoStripContainer" class="flex flex-col items-center gap-4 p-4 w-full">
                             <!-- Photos will be dynamically generated here -->
                         </div>
                     </div>
-                    <div class="flex justify-center w-full mt-4 animate-fade-in-up delay-1">
-                        <div
-                            class="flex flex-col sm:flex-row flex-1 flex-wrap justify-center gap-3 px-4 py-3 max-w-[480px]">
+                    <!-- Secondary Action Row (Filters, Restart) -->
+                    <div class="flex justify-center w-full mt-6 animate-fade-in-up delay-1 px-4">
+                        <div class="grid grid-cols-2 gap-3 w-full max-w-[480px]">
                             <button id="editFiltersBtn"
-                                class="flex min-w-[84px] w-full sm:w-auto sm:max-w-[480px] grow cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 sm:h-10 px-4 glass-strong text-text-light text-sm font-bold leading-normal tracking-[0.015em] hover:bg-white/60 transition-all hover:scale-105 active:scale-95">
+                                class="scrapbook-btn flex w-full cursor-pointer items-center justify-center h-12 text-sm font-semibold transform hover:-rotate-1">
+                                <span class="material-symbols-outlined mr-2 text-[18px]">tune</span>
                                 <span class="truncate">Edit Filters</span>
                             </button>
                             <a href="index.html"
-                                class="flex min-w-[84px] w-full sm:w-auto sm:max-w-[480px] grow cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 sm:h-10 px-4 glass text-text-light text-sm font-bold leading-normal tracking-[0.015em] hover:bg-white/40 transition-all hover:scale-105 active:scale-95">
-                                <span class="truncate">Start New Session</span>
+                                class="scrapbook-btn flex w-full cursor-pointer items-center justify-center h-12 text-sm font-semibold transform hover:rotate-1">
+                                <span class="material-symbols-outlined mr-2 text-[18px]">restart_alt</span>
+                                <span class="truncate">New Session</span>
                             </a>
                         </div>
                     </div>
-                    <div class="p-4 animate-fade-in-up delay-2">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-text-light/60 mb-3">Strip Color</h3>
-                        <div class="grid grid-cols-5 sm:grid-cols-10 gap-2 mb-4">
+
+                    <!-- Strip Customization Box (Color Picker & Details) -->
+                    <div
+                        class="w-full max-w-[480px] p-5 sm:p-6 mt-6 polaroid-frame animate-fade-in-up delay-2 mx-4 relative">
+                        <div class="masking-tape top-[-5px] right-6 w-12 h-5 transform -rotate-6"></div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-bold font-typewriter text-text-dark/80">Strip Wrap Color</h3>
+                        </div>
+
+                        <!-- Horizontally Scrollable Color Strip -->
+                        <div class="flex overflow-x-auto gap-3 pb-4 mb-2 snap-x hide-scrollbar"
+                            style="-webkit-overflow-scrolling: touch;">
                             <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-primary shadow-md hover:scale-110 transition-transform"
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-violet-500 shadow-md ring-2 ring-violet-500/20 hover:scale-105 transition-all snap-start"
                                 data-color="#FFFFFF" style="background-color: #FFFFFF;" title="Classic White"></button>
                             <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-transparent hover:border-white/50 shadow-md hover:scale-105 transition-all snap-start"
+                                data-color="#1E293B" style="background-color: #1E293B;" title="Slate Black"></button>
+                            <button
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-transparent hover:border-white/50 shadow-md hover:scale-105 transition-all snap-start"
                                 data-color="#FFE5EC" style="background-color: #FFE5EC;" title="Light Pink"></button>
                             <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-transparent hover:border-white/50 shadow-md hover:scale-105 transition-all snap-start"
                                 data-color="#FFF0F5" style="background-color: #FFF0F5;" title="Lavender Blush"></button>
                             <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-transparent hover:border-white/50 shadow-md hover:scale-105 transition-all snap-start"
                                 data-color="#E6F3FF" style="background-color: #E6F3FF;" title="Baby Blue"></button>
                             <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-transparent hover:border-white/50 shadow-md hover:scale-105 transition-all snap-start"
                                 data-color="#E0F7FA" style="background-color: #E0F7FA;" title="Light Cyan"></button>
                             <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-transparent hover:border-white/50 shadow-md hover:scale-105 transition-all snap-start"
                                 data-color="#D4F1F4" style="background-color: #D4F1F4;" title="Mint Green"></button>
                             <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-transparent hover:border-white/50 shadow-md hover:scale-105 transition-all snap-start"
                                 data-color="#E8F5E9" style="background-color: #E8F5E9;" title="Pale Green"></button>
                             <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-transparent hover:border-white/50 shadow-md hover:scale-105 transition-all snap-start"
                                 data-color="#FFF9C4" style="background-color: #FFF9C4;" title="Pale Yellow"></button>
                             <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
-                                data-color="#FFF3E0" style="background-color: #FFF3E0;" title="Peach"></button>
-                            <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-transparent hover:border-white/50 shadow-md hover:scale-105 transition-all snap-start"
                                 data-color="#FCE4EC" style="background-color: #FCE4EC;" title="Rose"></button>
                             <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-transparent hover:border-white/50 shadow-md hover:scale-105 transition-all snap-start"
                                 data-color="#F3E5F5" style="background-color: #F3E5F5;" title="Lilac"></button>
                             <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-transparent hover:border-white/50 shadow-md hover:scale-105 transition-all snap-start"
                                 data-color="#EDE7F6" style="background-color: #EDE7F6;" title="Periwinkle"></button>
                             <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-transparent hover:border-white/50 shadow-md hover:scale-105 transition-all snap-start"
                                 data-color="#E8EAF6" style="background-color: #E8EAF6;" title="Lavender"></button>
                             <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
-                                data-color="#FFEBEE" style="background-color: #FFEBEE;" title="Blush"></button>
-                            <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
+                                class="color-option flex-none w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[3px] border-transparent hover:border-white/50 shadow-md hover:scale-105 transition-all snap-start"
                                 data-color="#FBE9E7" style="background-color: #FBE9E7;" title="Coral"></button>
-                            <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
-                                data-color="#FFF8E1" style="background-color: #FFF8E1;" title="Cream"></button>
-                            <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
-                                data-color="#F1F8E9" style="background-color: #F1F8E9;" title="Lime"></button>
-                            <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
-                                data-color="#E0F2F1" style="background-color: #E0F2F1;" title="Teal"></button>
-                            <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
-                                data-color="#E1F5FE" style="background-color: #E1F5FE;" title="Sky Blue"></button>
-                            <button
-                                class="color-option w-12 h-12 rounded-lg border-2 border-transparent shadow-md hover:scale-110 transition-transform"
-                                data-color="#F9FBE7" style="background-color: #F9FBE7;" title="Pale Lime"></button>
                         </div>
+
+                        <!-- Add Emoji Button (Inside Customization Panel) -->
                         <button id="addEmojiBtn"
-                            class="w-full flex cursor-pointer items-center justify-center gap-x-2 rounded-xl glass-strong px-4 py-3 sm:py-2 hover:bg-white/60 transition-all hover:scale-[1.02] active:scale-95">
-                            <span class="material-symbols-outlined text-text-light">add_reaction</span>
-                            <p class="text-text-light text-sm font-bold leading-normal">Add Emoji</p>
+                            class="w-full scrapbook-btn flex items-center justify-center py-3 mt-4 transform hover:rotate-1 h-12">
+                            <span
+                                class="material-symbols-outlined text-primary group-hover:rotate-12 transition-transform">add_reaction</span>
+                            <p class="text-text-dark text-sm font-bold ml-2 font-handwritten text-xl">Add Stickers!</p>
                         </button>
                     </div>
-                    <div class="flex px-4 py-3 justify-center w-full mt-4 animate-fade-in-up delay-3">
-                        <div class="flex flex-col sm:flex-row gap-3 w-full max-w-[480px] items-stretch sm:items-center">
-                            <select id="formatSelect" aria-label="Image format"
-                                class="rounded-xl border border-white/40 px-3 py-3 sm:py-2 glass text-sm font-medium">
-                                <option value="png">PNG (lossless)</option>
-                                <option value="jpeg">JPEG (compressed)</option>
-                            </select>
 
-                            <button id="downloadBtn"
-                                class="download-glow flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 sm:h-12 px-5 bg-gradient-to-r from-primary to-yellow-400 text-gray-900 gap-2 text-base font-bold leading-normal tracking-[0.015em] hover:scale-105 transition-all active:scale-95">
-                                <span class="material-symbols-outlined dl-icon text-gray-900">download</span>
-                                <span class="truncate">Download</span>
-                            </button>
+                    <!-- Primary Export Actions (Grid Layout) -->
+                    <div class="px-4 py-3 w-full max-w-[480px] mt-2 animate-fade-in-up delay-3 shrink-0 mb-8">
+                        <div class="flex flex-col gap-3 w-full">
+                            <!-- Format Selection Row -->
+                            <div
+                                class="flex justify-between items-center bg-surface-dark/50 rounded-sm px-4 py-3 border border-border-light shadow-inner">
+                                <span class="text-xs font-semibold text-text-muted font-typewriter">Export Quality</span>
+                                <select id="formatSelect" aria-label="Image format"
+                                    class="bg-transparent border-none text-primary text-sm font-bold focus:ring-0 cursor-pointer text-right p-0 font-typewriter">
+                                    <option value="jpeg">Speed (JPEG)</option>
+                                    <option value="png">Lossless (PNG)</option>
+                                </select>
+                            </div>
+
+                            <!-- Big Actions Grid -->
+                            <div class="grid grid-cols-2 gap-3 w-full">
+                                <button id="downloadBtn"
+                                    class="col-span-2 sm:col-span-1 scrapbook-btn-primary flex w-full h-14 items-center justify-center gap-2 text-xl font-handwritten">
+                                    <span class="material-symbols-outlined dl-icon text-[24px]">download</span>
+                                    <span>Download</span>
+                                </button>
+
+                                <button id="saveGalleryBtn"
+                                    class="col-span-2 sm:col-span-1 scrapbook-btn flex w-full h-14 items-center justify-center gap-2 text-xl font-handwritten">
+                                    <span class="material-symbols-outlined text-primary text-[24px]">photo_library</span>
+                                    <span>To Gallery</span>
+                                </button>
+                            </div>
+
+                            <!-- Mobile Share Button (Appears conditionally in JS) -->
                             <button id="shareBtn"
-                                class="flex min-w-[84px] w-full sm:w-auto cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 sm:h-12 px-5 bg-white text-gray-900 gap-2 text-base font-bold leading-normal tracking-[0.015em] hover:scale-105 transition-all active:scale-95 hidden">
-                                <span class="material-symbols-outlined text-gray-900">ios_share</span>
-                                <span class="truncate">Share</span>
-                            </button>
-                            <button id="saveGalleryBtn"
-                                class="flex min-w-[84px] w-full sm:w-auto cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 sm:h-12 px-5 bg-blue-500 text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] hover:scale-105 transition-all active:scale-95">
-                                <span class="material-symbols-outlined text-white">photo_library</span>
-                                <span class="truncate">Save to Gallery</span>
+                                class="hidden scrapbook-btn flex w-full h-12 items-center justify-center gap-2 text-base font-handwritten mt-2">
+                                <span class="material-symbols-outlined text-[18px]">ios_share</span>
+                                <span>Share via OS</span>
                             </button>
                         </div>
                     </div>
-                    <div class="mt-8 mb-6 text-center glass rounded-2xl px-6 py-4 mx-4">
-                        <p class="sparkle-text text-sm font-medium text-text-light/70">✨ Thank you for using PixBooth! ✨
-                        </p>
-                        <a class="text-xs underline hover:text-primary text-text-light/50 mt-1 inline-block"
-                            href="#">Privacy Policy</a>
+                    <div class="mt-4 mb-10 text-center mx-4">
+                        <p class="text-xs font-medium text-text-muted font-typewriter">✨ Handcrafted with PixBooth ✨</p>
+                        <div class="flex gap-4 justify-center mt-2 font-handwritten text-lg">
+                            <a class="text-text-dark/60 hover:text-primary transition-colors" href="#">Privacy Policy</a>
+                            <a class="text-text-dark/60 hover:text-primary transition-colors" href="gallery.html">Open Gallery</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -157,9 +174,10 @@
     <div id="filterModal" role="dialog" aria-modal="true" aria-label="Edit Filters"
         class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div
-            class="bg-background-light dark:bg-background-dark rounded-xl shadow-soft-xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="p-4 border-b border-surface-light dark:border-surface-dark flex items-center justify-between">
-                <h2 class="text-xl font-bold text-text-light dark:text-text-dark">Edit Filters</h2>
+            class="bg-surface-light border border-border-light polaroid-frame shadow-scrapbook max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col relative transform rotate-1">
+            <div class="masking-tape top-[-8px] left-1/2 -translate-x-1/2 w-16 h-5 transform -rotate-1"></div>
+            <div class="p-4 flex items-center justify-between border-b border-border-light/20 mt-2">
+                <h2 class="text-2xl font-handwritten font-bold text-primary tracking-wide drop-shadow-sm transform -rotate-2">Edit Filters</h2>
                 <button id="closeModalBtn" aria-label="Close filter editor"
                     class="text-text-light dark:text-text-dark hover:text-primary">
                     <span class="material-symbols-outlined">close</span>
@@ -168,7 +186,7 @@
             <div class="p-4 overflow-y-auto flex-1">
                 <!-- Filter Presets -->
                 <div class="mb-6">
-                    <h3 class="text-sm font-medium text-text-light/80 dark:text-text-dark/80 mb-3">Filter Presets</h3>
+                    <h3 class="text-md font-bold text-text-dark font-typewriter mb-3">Filter Presets</h3>
                     <div class="flex gap-3 overflow-x-auto pb-2">
                         <div class="filter-preset flex-shrink-0 cursor-pointer" data-filter="none">
                             <div
@@ -210,7 +228,7 @@
 
                 <!-- Manual Adjustments -->
                 <div class="space-y-4">
-                    <h3 class="text-sm font-medium text-text-light/80 dark:text-text-dark/80 mb-3">Manual Adjustments
+                    <h3 class="text-md font-bold text-text-dark font-typewriter mb-3">Manual Adjustments
                     </h3>
                     <div>
                         <div class="flex items-center justify-between mb-1">
@@ -241,13 +259,13 @@
                     </div>
                 </div>
             </div>
-            <div class="p-4 border-t border-surface-light dark:border-surface-dark flex gap-3">
+            <div class="p-4 border-t border-border-light/20 flex gap-3">
                 <button id="resetFiltersBtn"
-                    class="flex-1 rounded-xl px-4 py-2 text-sm font-medium bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark hover:bg-opacity-80">
+                    class="flex-1 scrapbook-btn px-4 py-2 text-sm font-bold transform hover:-rotate-1">
                     Reset
                 </button>
                 <button id="applyFiltersBtn"
-                    class="flex-1 rounded-xl px-4 py-2 text-sm font-medium bg-primary text-text-light dark:text-text-dark hover:brightness-110">
+                    class="flex-1 scrapbook-btn-primary px-4 py-2 text-sm font-bold transform hover:rotate-1">
                     Apply
                 </button>
             </div>
@@ -260,17 +278,17 @@
     <div id="emojiModal" role="dialog" aria-modal="true" aria-label="Add Emoji"
         class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div
-            class="bg-background-light dark:bg-background-dark rounded-xl shadow-soft-xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="p-4 border-b border-surface-light dark:border-surface-dark flex items-center justify-between">
-                <h2 class="text-xl font-bold text-text-light dark:text-text-dark">Add Emoji</h2>
+            class="bg-surface-light border border-border-light polaroid-frame shadow-scrapbook max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col relative transform -rotate-1">
+            <div class="masking-tape top-[-8px] right-6 w-12 h-5 transform rotate-6"></div>
+            <div class="p-4 border-b border-border-light/20 flex items-center justify-between mt-2">
+                <h2 class="text-2xl font-handwritten font-bold text-primary tracking-wide drop-shadow-sm transform rotate-1">Add Sticker</h2>
                 <button id="closeEmojiModalBtn" aria-label="Close emoji picker"
-                    class="text-text-light dark:text-text-dark hover:text-primary">
+                    class="text-text-dark hover:text-primary transition-colors">
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
             <div class="p-4 overflow-y-auto flex-1">
-                <p class="text-sm text-text-light/60 dark:text-text-dark/60 mb-4">Click an emoji, then click on the
-                    photo strip to place it</p>
+                <p class="text-sm text-text-dark/60 font-typewriter mb-4 font-bold">Pick a sticker, then place it on your photo strip!</p>
                 <div class="grid grid-cols-6 sm:grid-cols-8 gap-2">
                     <button
                         class="emoji-btn text-3xl hover:scale-125 transition-transform p-2 rounded-lg hover:bg-surface-light dark:hover:bg-surface-dark"
