@@ -13,7 +13,8 @@ tailwind.config = {
                 "text-light": "#f4f0ec",
                 "text-dark": "#2c2a26", // Charcoal
                 "border-light": "#e0d8c8",
-                "border-dark": "#8c8273"
+                "border-dark": "#8c8273",
+                "text-muted": "#8c8273"
             },
             fontFamily: {
                 "display": ["'Courier Prime'", "monospace"],
