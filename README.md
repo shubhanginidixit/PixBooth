@@ -60,4 +60,5 @@ This project is open-source and available for personal and educational use.
 
 ---
 
-*Redesigned and coded with ❤️ by Dhanush Pillay*
+*Redesigned and coded with ❤️ by Dhanush Pillay
+and Shubhangini Dixit 
